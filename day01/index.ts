@@ -8,7 +8,7 @@ const convertToNumbers = (input: string) => {
         .map(n => Number(n));
 }
 
-export default function solve(input: string) {
+export function solvePartOne(input: string) {
     const numbers = convertToNumbers(input);
     return _.sum(numbers);
 }

@@ -1,5 +1,4 @@
-import solvePartOne from ".";
-import { solvePartTwo } from ".";
+import { solvePartOne, solvePartTwo } from ".";
 import input from "./input";
 
 describe("day 01", () => {
