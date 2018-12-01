@@ -1,0 +1,20 @@
+{
+  "name": "advent-of-code-2018",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:swilson96/advent-of-code-2018.git",
+  "author": "Simon Wilson <simon@yulife.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@types/jest": "^23.3.10",
+    "@types/lodash": "^4.14.118",
+    "@types/node": "^10.12.11",
+    "chai": "^4.2.0",
+    "jest": "^23.6.0",
+    "lodash": "^4.17.11",
+    "nodemon": "^1.18.7",
+    "ts-jest": "^23.10.5",
+    "tslint": "^5.11.0",
+    "typescript": "^3.2.1"
+  }
+}
