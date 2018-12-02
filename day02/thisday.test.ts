@@ -17,17 +17,14 @@ ababab`);
     expect(solvePartOne(input)).toBe(7470);
   });
 
-  it("should solve first example of part two", () => {
-    const answer = solvePartTwo("");
-    expect(answer).toBe(0);
-  });
-
-  it("should solve second example of part two", () => {
-    const answer = solvePartTwo("");
-    expect(answer).toBe(0);
-  });
-
-  it("will output answer to part two", () => {
-    console.log("part two: " + solvePartTwo(input));
+  it("should solve example of part two", () => {
+    const answer = solvePartTwo(`abcde
+fghij
+klmno
+pqrst
+fguij
+axcye
+wvxyz`);
+    expect(answer).toBe("fgij");
   });
 });
