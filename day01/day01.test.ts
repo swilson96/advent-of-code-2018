@@ -24,8 +24,8 @@ describe("day 01", () => {
     expect(answer).toBe(12);
   });
 
-  it("will output answer to part one", () => {
-    console.log("part one: " + solvePartOne(input));
+  it("should solve part one", () => {
+    expect(solvePartOne(input)).toBe(569);
   });
 
   it("should solve text example of part two", () => {
@@ -56,9 +56,5 @@ describe("day 01", () => {
   it("should solve fourth example of part two", () => {
     const answer = solvePartTwo("+7, +7, -2, -7, -4");
     expect(answer).toBe(14);
-  });
-
-  it("will output answer to part two", () => {
-    console.log("part two: " + solvePartTwo(input));
   });
 });
