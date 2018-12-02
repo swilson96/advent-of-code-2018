@@ -12,9 +12,9 @@ export function solvePartOne(input: string) {
 
     ids.forEach(id => {
         let debugString = `${id}: `;
-        const matchCounts: number[] = []
-        alphabet.split('').forEach(l => {
-            const letterRegex = new RegExp(`${l}`, 'g');
+        const matchCounts: number[] = [];
+        alphabet.split("").forEach(l => {
+            const letterRegex = new RegExp(`${l}`, "g");
             const matches = id.match(letterRegex);
             if (matches && matches.length > 1 && matches.length < 4) {
                 debugString += `${matches.length}:${l}, `;
@@ -43,7 +43,7 @@ export function solvePartTwo(input: string) {
 
     for (let i = 0; i < ids.length; ++i) {
         const id1 = ids[i];
-        for (let j = i+1; j < ids.length; ++j) {
+        for (let j = i + 1; j < ids.length; ++j) {
             const id2 = ids[j];
 
             let noMatchIndex = -1;
@@ -61,7 +61,7 @@ export function solvePartTwo(input: string) {
 
             if (similar) {
                 console.log(`${id1} and ${id2} differ at ${noMatchIndex}`);
-                return id1.slice(0,noMatchIndex) + id1.slice(noMatchIndex + 1);
+                return id1.slice(0, noMatchIndex) + id1.slice(noMatchIndex + 1);
             }
         }
     }

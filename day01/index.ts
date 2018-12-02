@@ -4,9 +4,9 @@ const convertToNumbers = (input: string) => {
     const diffs = input.split(/[\s,]+/);
 
     return diffs
-        .map(s => s.replace('+', ''))
+        .map(s => s.replace("+", ""))
         .map(n => Number(n));
-}
+};
 
 export function solvePartOne(input: string) {
     const numbers = convertToNumbers(input);
@@ -18,7 +18,7 @@ export function solvePartTwo(input: string) {
     const iterate = (acc: number, soFar: number[]): number => {
         for (let i = 0; i < numbers.length; ++i) {
             const n = numbers[i];
-            //console.log(`${acc}, diff ${n}, result ${acc + n}; already seen ${soFar}`);
+            // console.log(`${acc}, diff ${n}, result ${acc + n}; already seen ${soFar}`);
 
             acc += n;
             if (_.includes(soFar, acc)) {
@@ -27,6 +27,6 @@ export function solvePartTwo(input: string) {
             soFar.push(acc);
         }
         return iterate(acc, soFar);
-    }
+    };
     return iterate(0, [0]);
 }
