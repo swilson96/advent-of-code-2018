@@ -19,14 +19,9 @@ describe("day 03", () => {
   });
 
   it("should solve first example of part two", () => {
-//     const answer = solvePartTwo(`#1 @ 1,3: 4x4
-// #2 @ 3,1: 4x4
-// #3 @ 5,5: 2x2`);
-//     expect(answer).toBe(3);
-  });
-
-  it("should solve second example of part two", () => {
-    const answer = solvePartTwo("");
-    expect(answer).toBe(0);
+    const answer = solvePartTwo(`#1 @ 1,3: 4x4
+#2 @ 3,1: 4x4
+#3 @ 5,5: 2x2`);
+    expect(answer).toBe(3);
   });
 });
