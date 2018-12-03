@@ -60,7 +60,7 @@ export function solvePartTwo(input: string) {
             }
 
             if (similar) {
-                console.log(`${id1} and ${id2} differ at ${noMatchIndex}`);
+                // console.log(`${id1} and ${id2} differ at index ${noMatchIndex}`);
                 return id1.slice(0, noMatchIndex) + id1.slice(noMatchIndex + 1);
             }
         }
