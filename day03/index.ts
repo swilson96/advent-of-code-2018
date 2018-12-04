@@ -36,7 +36,7 @@ class Grid {
 
     private cutInch(x: number, y: number) {
         if (!this.inches[x]) {
-            this.inches [x]= [];
+            this.inches [x] = [];
         }
         const column = this.inches[x];
         if (!column[y]) {
@@ -87,8 +87,8 @@ export function solvePartTwo(input: string) {
 
     return rects.map(r => {
         if (!grid.checkOverlapp(r)) {
-            return r.id; 
+            return r.id;
         }
-        return null;
+        return undefined;
     }).filter(id => !!id)[0];
 }

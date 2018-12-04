@@ -33,7 +33,7 @@ class ShiftInfo {
     public static convert(begins: string, sleeps: string[]) {
         const idMatch = begins.match(this.idRegex);
         const id = Number(idMatch[1]);
-        
+
         const result: ShiftInfo[] = [];
 
         for (let i = 0; i < sleeps.length; i += 2) {
@@ -56,7 +56,7 @@ class CombinedGuardInfo {
             for (let i = shift.fall; i < shift.wake; ++i) {
                 this.minutes[i] += 1;
             }
-        })
+        });
         this.id = shifts[0].id;
     }
 
