@@ -67,13 +67,23 @@ class CombinedGuardInfo {
     public get mostSleptMin() {
         return this.minutes.indexOf(Math.max(...this.minutes));
     }
+
+    public get timesSleptInMostSleptMin() {
+        return Math.max(...this.minutes);
+    }
 }
 
 export function solvePartOne(input: string) {
+    const guardInfo = organiseGuardInfo(input);
+    const sleepyHead = guardInfo.sort((g, h) => h.totalMinsSlept - g.totalMinsSlept)[0];
+
+    console.log(`Guard #${sleepyHead.id} slept for ${sleepyHead.totalMinsSlept} minutes, mostly at ${sleepyHead.mostSleptMin}`);
+    return sleepyHead.id * sleepyHead.mostSleptMin;
+}
+
+function organiseGuardInfo(input: string) {
     const lines = input.split(/\r?\n/).map(l => new DatedRow(l));
-
     const orderedLines = _.sortBy(lines, l => l.date);
-
     const shiftInfo: ShiftInfo[] = [];
     let i = 0;
     while (i < orderedLines.length) {
@@ -86,16 +96,15 @@ export function solvePartOne(input: string) {
         const shifts = ShiftInfo.convert(orderedLines[sectionStart].text, orderedLines.slice(sectionStart + 1, i).map(dr => dr.date));
         shifts.forEach(s => shiftInfo.push(s));
     }
-
     const guardIds = _.uniqBy(shiftInfo.map(i => i.id), id => id);
-    const guardInfo = guardIds.map(id => new CombinedGuardInfo(shiftInfo.filter(s => s.id === id)))
-
-    const sleepyHead = guardInfo.sort((g, h) => h.totalMinsSlept - g.totalMinsSlept)[0];
-
-    console.log(`Guard #${sleepyHead.id} slept for ${sleepyHead.totalMinsSlept} minutes, mostly at ${sleepyHead.mostSleptMin}`);
-    return sleepyHead.id * sleepyHead.mostSleptMin;
+    const guardInfo = guardIds.map(id => new CombinedGuardInfo(shiftInfo.filter(s => s.id === id)));
+    return guardInfo;
 }
 
 export function solvePartTwo(input: string) {
-    return 0;
+    const guardInfo = organiseGuardInfo(input);
+    const sleepyHead = guardInfo.sort((g, h) => h.timesSleptInMostSleptMin - g.timesSleptInMostSleptMin)[0];
+
+    console.log(`Guard #${sleepyHead.id} slept for ${sleepyHead.totalMinsSlept} minutes, mostly at ${sleepyHead.mostSleptMin}`);
+    return sleepyHead.id * sleepyHead.mostSleptMin;
 }
