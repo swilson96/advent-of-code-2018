@@ -3,7 +3,7 @@ import input from "./input";
 
 const exampleInput = ``;
 
-describe("day XX", () => {
+describe("day 05", () => {
   it("should solve first example", () => {
     const answer = solvePartOne(exampleInput);
     expect(answer).toBe(0);
