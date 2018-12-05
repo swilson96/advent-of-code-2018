@@ -10,11 +10,11 @@ describe("day 05", () => {
   });
 
   it("should solve part 1 correctly", () => {
-    // expect(solvePartOne(input)).toBe(0);
+    expect(solvePartOne(input)).toBe(10766);
   });
 
   it("should solve first example of part two", () => {
     const answer = solvePartTwo(exampleInput);
-    expect(answer).toBe(0);
+    expect(answer).toBe(4);
   });
 });

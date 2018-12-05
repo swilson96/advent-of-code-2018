@@ -1,9 +1,11 @@
 import _ from "lodash";
 
+const alphabet = "abcdefghijklmnopqrstuvwxyz";
+
 const shrink = (input: string) => {
     for (let i = 0; i < input.length - 1; ++i) {
         if (input[i].toLowerCase() === input[i + 1].toLowerCase() && input[i] !== input[i + 1]) {
-            return input.slice(0, i) + input.slice(i + 2);
+            input = input.slice(0, i) + input.slice(i + 2);
         }
     }
     return input;
@@ -17,9 +19,14 @@ export function solvePartOne(input: string) {
         polymer = shrink(polymer);
         changed = polymer.length !== prev.length;
     }
+    // console.log(`Input: ${input}; shrunk: ${polymer}; answer: ${polymer.length}`);
     return polymer.length;
 }
 
 export function solvePartTwo(input: string) {
-    return 0;
+    const original = input;
+    return Math.min(...alphabet.split("")
+        .map(letter => solvePartOne(original
+            .replace(new RegExp(letter, "g"), "")
+            .replace(new RegExp(letter.toUpperCase(), "g"), ""))));
 }
