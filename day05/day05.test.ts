@@ -1,12 +1,12 @@
 import { solvePartOne, solvePartTwo } from ".";
 import input from "./input";
 
-const exampleInput = ``;
+const exampleInput = `dabAcCaCBAcCcaDA`;
 
 describe("day 05", () => {
   it("should solve first example", () => {
     const answer = solvePartOne(exampleInput);
-    expect(answer).toBe(0);
+    expect(answer).toBe(10);
   });
 
   it("should solve part 1 correctly", () => {
