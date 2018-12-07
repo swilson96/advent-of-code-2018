@@ -1,4 +1,4 @@
-import { solvePartOne, solvePartTwo } from ".";
+import { solvePartOne, solvePartTwo, allDone } from ".";
 import input from "./input";
 
 const exampleInput = `Step C must be finished before step A can begin.
@@ -16,11 +16,23 @@ describe("day 07", () => {
   });
 
   it("should solve part 1 correctly", () => {
-    // expect(solvePartOne(input)).toBe(0);
+    expect(solvePartOne(input)).toBe("OVXCKZBDEHINPFSTJLUYRWGAMQ");
   });
 
   it("should solve first example of part two", () => {
-    const answer = solvePartTwo(exampleInput);
-    expect(answer).toBe(0);
+    const answer = solvePartTwo(exampleInput, 0, 2);
+    expect(answer).toBe(15);
+  });
+
+  describe("allDone", () => {
+    it("should be false if someone working", () => {
+      const answer = allDone(2, [["A", "A"], ["B", "B", "B"]]);
+      expect(answer).toBeFalsy;
+    });
+
+    it("should be true if noone left working", () => {
+      const answer = allDone(2, [["A", "A"], ["B", "B"]]);
+      expect(answer).toBeTruthy;
+    });
   });
 });
