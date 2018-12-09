@@ -12,18 +12,28 @@ const parseGameDesc = (input: string) => {
 class Node {
     private _value: number;
     private _next: Node;
+    private _previous: Node;
 
-    constructor(value: number, next?: Node) {
+    constructor(value: number, next?: Node, previous?: Node) {
         this._value = value;
         this._next = next;
+        this._previous = previous;
     }
 
     public setNext(newNext: Node) {
         this._next = newNext;
     }
 
+    public setPrevious(newPrev: Node) {
+        this._previous = newPrev;
+    }
+
     public get next(): Node {
         return this._next || this;
+    }
+
+    public get previous(): Node {
+        return this._previous || this;
     }
 
     public get value() {
@@ -38,21 +48,23 @@ class MarbleGameCircle {
 
     public insert(marble: number) {
         if (marble % 23 === 0) {
-            const howFarForwardDoWeGo = this.circleLength - 8;
-            let preRemoveNode = this.currentNode;
-            for (let i = 0; i < howFarForwardDoWeGo; ++i) {
-                preRemoveNode = preRemoveNode.next;
+            let removeNode = this.currentNode;
+            for (let i = 0; i < 7; ++i) {
+                removeNode = removeNode.previous;
             }
-            const score = marble + preRemoveNode.next.value;
-            preRemoveNode.setNext(preRemoveNode.next.next);
-            this.currentNode = preRemoveNode.next;
+            const score = marble + removeNode.value;
+            removeNode.previous.setNext(removeNode.next);
+            removeNode.next.setPrevious(removeNode.previous);
+            this.currentNode = removeNode.next;
             this.circleLength -= 1;
             return score;
         } else {
-
             const nodeBeforeInsert = this.currentNode.next;
-            const newNode = new Node(marble, nodeBeforeInsert.next);
+            const newNode = new Node(marble, nodeBeforeInsert.next, nodeBeforeInsert);
+        
             nodeBeforeInsert.setNext(newNode);
+            newNode.next.setPrevious(newNode);
+
             this.currentNode = newNode;
             this.circleLength += 1;
             return 0;
