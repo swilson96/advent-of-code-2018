@@ -7,7 +7,7 @@ const parseGameDesc = (input: string) => {
     const numPlayers = Number(match[1]);
     const lastMarble = Number(match[2]);
     return { numPlayers, lastMarble };
-}
+};
 
 class Node {
     private _value: number;
@@ -61,7 +61,7 @@ class MarbleGameCircle {
         } else {
             const nodeBeforeInsert = this.currentNode.next;
             const newNode = new Node(marble, nodeBeforeInsert.next, nodeBeforeInsert);
-        
+
             nodeBeforeInsert.setNext(newNode);
             newNode.next.setPrevious(newNode);
 
