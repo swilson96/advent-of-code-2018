@@ -9,32 +9,64 @@ const parseGameDesc = (input: string) => {
     return { numPlayers, lastMarble };
 }
 
-class MarbleGameCircle {
-    private circle: number[] = [0];
-    private currentIndex = 0;
+class Node {
+    private _value: number;
+    private _next: Node;
 
-    private getIndex(index: number) {
-        const closest = index % this.circle.length;
-        return closest < 0 ? closest + this.circle.length : closest;
+    constructor(value: number, next?: Node) {
+        this._value = value;
+        this._next = next;
     }
+
+    public setNext(newNext: Node) {
+        this._next = newNext;
+    }
+
+    public get next(): Node {
+        return this._next || this;
+    }
+
+    public get value() {
+        return this._value;
+    }
+}
+
+class MarbleGameCircle {
+    private currentNode = new Node(0);
+    private rootNode = this.currentNode;
+    private circleLength = 1;
 
     public insert(marble: number) {
         if (marble % 23 === 0) {
-            const removeIndex = this.getIndex(this.currentIndex - 7);
-            const score = marble + this.circle[removeIndex];
-            this.circle = _.concat(this.circle.slice(0, removeIndex), this.circle.slice(removeIndex + 1));
-            this.currentIndex = removeIndex;
+            const howFarForwardDoWeGo = this.circleLength - 8;
+            let preRemoveNode = this.currentNode;
+            for (let i = 0; i < howFarForwardDoWeGo; ++i) {
+                preRemoveNode = preRemoveNode.next;
+            }
+            const score = marble + preRemoveNode.next.value;
+            preRemoveNode.setNext(preRemoveNode.next.next);
+            this.currentNode = preRemoveNode.next;
+            this.circleLength -= 1;
             return score;
         } else {
-            const insertIndex = this.getIndex(this.currentIndex + 2);
-            this.circle = _.concat(this.circle.slice(0, insertIndex), [marble], this.circle.slice(insertIndex));
-            this.currentIndex = insertIndex;
+
+            const nodeBeforeInsert = this.currentNode.next;
+            const newNode = new Node(marble, nodeBeforeInsert.next);
+            nodeBeforeInsert.setNext(newNode);
+            this.currentNode = newNode;
+            this.circleLength += 1;
             return 0;
         }
     }
 
     public print(player: number) {
-        console.log(`[${player}]; current marble: ${this.circle[this.currentIndex]} at ${this.currentIndex}: ${this.circle.join(" ")}`);
+        const values = [];
+        let node = this.rootNode;
+        for (let i = 0; i < this.circleLength; ++i) {
+            values.push(node.value);
+            node = node.next;
+        }
+        console.log(`[${player}]; current marble: ${this.currentNode.value}: ${values}`);
     }
 }
 

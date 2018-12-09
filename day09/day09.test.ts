@@ -1,4 +1,5 @@
 import { solvePartOne } from ".";
+import input from "./input";
 
 describe("day 09", () => {
   it("should solve question example", () => {
@@ -29,5 +30,9 @@ describe("day 09", () => {
   it("should solve fifth example", () => {
     const answer = solvePartOne("30 players; last marble is worth 5807 points");
     expect(answer).toBe(37305);
+  });
+
+  it("should solve part 1 correctly", () => {
+    expect(solvePartOne(input)).toBe(422980);
   });
 });
