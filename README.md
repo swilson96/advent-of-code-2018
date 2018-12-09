@@ -6,12 +6,12 @@ node: `nvm use`
 
 install: `yarn`
 
-tests: `yarn jest`
+tests: `yarn test` or `yarn test:one day09`
 
 find a solution:
 ```
 yarn tsc
-node dist/index.js dayXX
+yarn solve dayXX
 ```
 
-lint, if you must: `yarn tslint --project .`
+lint, if you must: `yarn lint`

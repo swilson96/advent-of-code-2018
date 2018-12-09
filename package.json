@@ -5,6 +5,12 @@
   "repository": "git@github.com:swilson96/advent-of-code-2018.git",
   "author": "Simon Wilson <simon@yulife.com>",
   "license": "MIT",
+  "scripts": {
+    "lint": "tslint -p .",
+    "solve": "node dist/index.js",
+    "test": "jest",
+    "test:one": "jest -t"
+  },
   "dependencies": {
     "@types/jest": "^23.3.10",
     "@types/lodash": "^4.14.118",
