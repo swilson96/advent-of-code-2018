@@ -1,5 +1,7 @@
 import { solvePartOne, solvePartTwo, scoreSinglePoint } from ".";
 import input from "./input";
+import Point from "../util/point";
+import Square from "../util/square";
 
 describe("day 11", () => {
   describe("power level calculations", () => {
@@ -26,24 +28,31 @@ describe("day 11", () => {
 
   it("should solve first example", () => {
     const answer = solvePartOne(18);
-    expect(answer.x).toBe(33);
-    expect(answer.y).toBe(45);
+    expect(answer).toEqual(new Point(33, 45));
   });
 
   it("should solve second example", () => {
     const answer = solvePartOne(42);
-    expect(answer.x).toBe(21);
-    expect(answer.y).toBe(61);
+    expect(answer).toEqual(new Point(21, 61));
   });
 
   it("should solve part 1 correctly", () => {
     const answer = solvePartOne(input);
-    expect(answer.x).toBe(235);
-    expect(answer.y).toBe(60);
+    expect(answer).toEqual(new Point(235, 60));
   });
 
-  it("should solve first example of part two", () => {
-    const answer = solvePartTwo(0);
-    expect(answer).toBe(0);
-  });
+  // it("should solve first example of part two", () => {
+  //   const answer = solvePartTwo(18);
+  //   expect(answer).toEqual(new Square(90, 269, 16));
+  // });
+
+  // it("should solve first example of part two", () => {
+  //   const answer = solvePartTwo(42);
+  //   expect(answer).toEqual(new Square(232, 251, 12));
+  // });
+
+  // it("should solve part two correctly", () => {
+  //   const answer = solvePartTwo(input);
+  //   expect(answer).toEqual(new Square(0, 0, 12));
+  // });
 });
