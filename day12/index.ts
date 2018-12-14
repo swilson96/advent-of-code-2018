@@ -65,14 +65,18 @@ export default class Pot {
         return `${this.previous}${this}...`;
     }
 
-    public printOnwardsChain() {
+    public get toStringOnwardsChain() {
         let next: Pot = this;
         const acc: string[] = [];
         while (next) {
             acc.push(next.toString());
             next = next.next;
         }
-        console.log(acc.join(""));
+        return acc.join("");
+    }
+
+    public printOnwardsChain() {
+        console.log(this.toStringOnwardsChain);
     }
 }
 
@@ -143,15 +147,37 @@ function evolveManyTimes(input: string, generations: number) {
 
     let time = 0;
 
+    let previousSums = [zeroPot.sumAsZero];
+    let previousHashes = [zeroPot.toStringOnwardsChain];
     // zeroPot.printOnwardsChain();
 
     while (time < generations) {
         ++time;
         zeroPot = evolveChain(map, zeroPot);
+
         if (time % 5000000 === 0) {
             console.log(`time: ${time}`);
         }
+
+        const current = zeroPot.toStringOnwardsChain;
         // zeroPot.printOnwardsChain();
+
+        const lastTime = previousHashes.indexOf(current);
+
+        if (lastTime > -1) {
+            console.log("periodic!");
+            console.log(lastTime);
+
+            const period = time - lastTime;
+            let finish = (generations - lastTime) % period;
+            if (finish < 0) {
+                finish += period;
+            }
+            return previousSums[lastTime + finish];
+        }
+
+        previousSums.push(zeroPot.sumAsZero);
+        previousHashes.push(current);
     }
 
     return zeroPot.sumAsZero;
