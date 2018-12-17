@@ -56,7 +56,7 @@ describe("day 12", () => {
       expect(stringToNumber("..#.#")).toBe(20);
     });
   });
-  
+
   describe("Room class", () => {
     it("should describe itself", () => {
       const room = new Room(exampleInitialState);
@@ -77,38 +77,38 @@ describe("day 12", () => {
       const room = new Room("####");
       expect(room.sum).toBe(6);
     });
-  
+
     it("should sum initial input", () => {
       const room = new Room("#..#.#..##");
       expect(room.sum).toBe(3 + 5 + 8 + 9);
     });
 
     it("should evolve once a single pot into one", () => {
-      const room = new Room("#", [0,0,0,0,1]);
+      const room = new Room("#", [0, 0, 0, 0, 1]);
       room.evolve();
       expect(room.positivePotsToString()).toBe("#");
     });
 
     it("should evolve once a single pot into one", () => {
-      const room = new Room("#", [0,0,1,0,0]);
+      const room = new Room("#", [0, 0, 1, 0, 0]);
       room.evolve();
       expect(room.positivePotsToString()).toBe(".#");
     });
 
     it("should evolve once a single pot into two", () => {
-      const room = new Room("#", [0,0,1,0,1]);
+      const room = new Room("#", [0, 0, 1, 0, 1]);
       room.evolve();
       expect(room.positivePotsToString()).toBe("##");
     });
 
     it("should evolve once a non-zero single pot", () => {
-      const room = new Room(".#", [0,0,1,0,0]);
+      const room = new Room(".#", [0, 0, 1, 0, 0]);
       room.evolve();
       expect(room.positivePotsToString()).toBe("..#");
     });
 
     it("should evolve and sum negative pots", () => {
-      const room = new Room("#", [0,0,0,0,0,0,0,0,1]);
+      const room = new Room("#", [0, 0, 0, 0, 0, 0, 0, 0, 1]);
       room.evolve();
       expect(room.positivePotsToString()).toBe("");
     });
@@ -116,14 +116,14 @@ describe("day 12", () => {
     it("should evolve and sum both negative and positive pots", () => {
       // 1 and 8 map to new plants
       // that's #.... and ...#.
-      const room = new Room("#", [0,1,0,0,0,0,0,0,1]);
+      const room = new Room("#", [0, 1, 0, 0, 0, 0, 0, 0, 1]);
       room.evolve();
       expect(room.positivePotsToString()).toBe("..#");
       expect(room.sum).toBe(1);
     });
 
     it("should evolve twice and sum both negative and positive pots", () => {
-      const room = new Room("#", [0,1,0,0,0,0,0,0,1]);
+      const room = new Room("#", [0, 1, 0, 0, 0, 0, 0, 0, 1]);
       room.evolve();
       // Now looks like (starting from -1) #..#
       room.evolve();
@@ -142,7 +142,6 @@ describe("day 12", () => {
       expect(room.positivePotsToString()).toBe(".#...#..#.#....#..#..#...#");
       room.evolve();
       expect(room.positivePotsToString()).toBe("#.#..#...#.#...#..#..##..##");
-      
     });
 
     it ("should helpfully sum a relevant intermediate state (t = 100)", () => {

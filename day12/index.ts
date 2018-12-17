@@ -5,7 +5,7 @@ const noteRegex = /(\S\S\S\S\S) => (\S)/;
 
 export const stringToNumber = (input: string) => {
     return parseInt(input.replace(/\./g, "0").replace(/#/g, "1").split("").reverse().join(""), 2);
-}
+};
 
 export const reverseBits = (input: number, length: number) => {
     let bit = 0;
@@ -16,7 +16,7 @@ export const reverseBits = (input: number, length: number) => {
         ++bit;
     }
     return acc;
-}
+};
 
 export class Room {
     private pots: number[] = [];
@@ -38,22 +38,16 @@ export class Room {
     public evolve() {
         const newPots = [];
 
-        let key = this.pots[0] >> 4
-
         this.zeroIndex += 2;
 
         newPots.push(this.notes[this.stateKeyAtIndex(-2)]);
-        key = key << 1 + this.pots[1] >> 4;
         newPots.push(this.notes[this.stateKeyAtIndex(-1)]);
-        key = key << 1 + this.pots[2] >> 4;
 
         for (let i = 0; i < this.pots.length; ++i) {
             newPots.push(this.notes[this.stateKeyAtIndex(i)]);
-            key = key << 1 + this.pots[i + 3] || 0 >> 4;
         }
 
         newPots.push(this.notes[this.stateKeyAtIndex(this.pots.length)]);
-        key = key << 1;
         newPots.push(this.notes[this.stateKeyAtIndex(this.pots.length + 1)]);
 
         this.pots = newPots;
@@ -96,7 +90,7 @@ function evolveManyTimes(input: string, generations: number) {
     const initialState = lines[0].match(initialStateRegex)[1];
 
     const notes = lines.slice(2).map(l => l.match(noteRegex));
-    const map: number[] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+    const map: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     notes.forEach(n => {
         map[stringToNumber(n[1])] = n[2] === "#" ? 1 : 0;
     });
@@ -104,7 +98,7 @@ function evolveManyTimes(input: string, generations: number) {
     const room = new Room(initialState, map);
 
     let time = 0;
-    let previousStates = [room.toString()];
+    const previousStates = [room.toString()];
     while (time < generations) {
         room.evolve();
         ++time;
