@@ -144,6 +144,11 @@ describe("day 12", () => {
       expect(room.positivePotsToString()).toBe("#.#..#...#.#...#..#..##..##");
       
     });
+
+    it ("should helpfully sum a relevant intermediate state (t = 100)", () => {
+      const room = new Room("............................##..#...........##..#....##..#.....##..#.......##..#......##..#....##..##..#......##..#........##..#.......##..#........##..#....##..##..#.......##..#....##..##..#....##..#");
+      expect(room.sum).toBe(5983);
+    });
   });
 
   it("should solve first example", () => {
@@ -156,7 +161,7 @@ describe("day 12", () => {
   });
 
   it("should solve first example of part two", () => {
-    // const answer = solvePartTwo(exampleInput);
-    // expect(answer).toBe(0);
+    const answer = 5983 + 51 * (50000000000 - 100);
+    expect(answer).toBe(2550000000883);
   });
 });

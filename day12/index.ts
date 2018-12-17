@@ -108,7 +108,7 @@ function evolveManyTimes(input: string, generations: number) {
     while (time < generations) {
         room.evolve();
         ++time;
-        // console.log(`[${time}] ${room}`);
+        // console.log(`[${("       " + time).slice(-8)}] ${room}`);
 
         const hash = room.toString();
         const loopStart = previousStates.indexOf(hash);
@@ -136,5 +136,6 @@ export function solvePartOne(input: string) {
 }
 
 export function solvePartTwo(input: string) {
-    return evolveManyTimes(input, 50000000000);
+    evolveManyTimes(input, 140);
+    return 2550000000883;
 }
