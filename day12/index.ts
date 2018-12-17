@@ -38,16 +38,22 @@ export class Room {
     public evolve() {
         const newPots = [];
 
+        let key = this.pots[0] >> 4
+
         this.zeroIndex += 2;
 
         newPots.push(this.notes[this.stateKeyAtIndex(-2)]);
+        key = key << 1 + this.pots[1] >> 4;
         newPots.push(this.notes[this.stateKeyAtIndex(-1)]);
+        key = key << 1 + this.pots[2] >> 4;
 
         for (let i = 0; i < this.pots.length; ++i) {
             newPots.push(this.notes[this.stateKeyAtIndex(i)]);
+            key = key << 1 + this.pots[i + 3] || 0 >> 4;
         }
 
         newPots.push(this.notes[this.stateKeyAtIndex(this.pots.length)]);
+        key = key << 1;
         newPots.push(this.notes[this.stateKeyAtIndex(this.pots.length + 1)]);
 
         this.pots = newPots;
@@ -71,8 +77,12 @@ export class Room {
     }
 
 
-    public toString() {
+    public positivePotsToString() {
         return this.pots.slice(this.zeroIndex).map(d => d ? "#" : ".").join("");
+    }
+
+    public toString() {
+        return this.zeroIndex + ": " + this.pots.map(d => d ? "#" : ".").join("");
     }
 
     public get sum() {
@@ -94,10 +104,28 @@ function evolveManyTimes(input: string, generations: number) {
     const room = new Room(initialState, map);
 
     let time = 0;
+    let previousStates = [room.toString()];
     while (time < generations) {
         room.evolve();
         ++time;
         // console.log(`[${time}] ${room}`);
+
+        const hash = room.toString();
+        const loopStart = previousStates.indexOf(hash);
+        if (loopStart > 0) {
+            const loopLength = time - loopStart;
+            let targetTime = (generations - loopStart) % loopLength;
+            console.log(`Loop found! start ${loopStart}, length ${loopLength}`);
+            if (targetTime < 0) {
+                targetTime += loopLength;
+            }
+            while (time < targetTime) {
+                room.evolve();
+                ++time;
+            }
+            return room.sum;
+        }
+        previousStates.push(hash);
     }
 
     return room.sum;
