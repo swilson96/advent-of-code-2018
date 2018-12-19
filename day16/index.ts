@@ -87,26 +87,87 @@ const operations = [
     },
 ];
 
-export const countPossibleOpCodes = (input: string) => {
-    const lines = input.split(/\r?\n/);
+export const collectPossibleOpIndices = (sample: string) => {
+    const lines = sample.split(/\r?\n/);
     const before = lines[0].match(registerRegex).slice(1).map(s => Number(s));
     const instruction = lines[1].split(" ").map(s => Number(s));
     const after = lines[2].match(registerRegex).slice(1).map(s => Number(s));
 
     // console.log(`before: ${before}; instruction: ${instruction}; after: ${after}`);
 
-    return operations.filter(op => {
-        const resultOfOp = op(before.slice(), instruction);
-        // console.log(`before: ${before}; result: ${resultOfOp}; expected: ${after}, match: ${resultOfOp === after}`);
-        return resultOfOp.reduce((acc, val, index) => acc && (val === after[index]), true);
-    }).length;
+    return operations
+        .map((op, opIndex) => {
+            const resultOfOp = op(before.slice(), instruction);
+            // console.log(`before: ${before}; result: ${resultOfOp}; expected: ${after}, match: ${resultOfOp === after}`);
+            const isPossible = resultOfOp.reduce((acc, val, index) => acc && (val === after[index]), true);
+            return { opIndex, isPossible, opCode: instruction[0] };
+        })
+        .filter(o => o.isPossible);
+};
+
+export const countPossibleOps = (sample: string) => {
+    return collectPossibleOpIndices(sample).length;
+};
+
+export const getOpCodePairings = (input: string) => {
+    const samples = input.split(/\r?\n\r?\n/);
+    const possibilities = samples
+        .map(collectPossibleOpIndices)
+        .map(samplePossibilities => ({
+            opCode: samplePossibilities[0].opCode,
+            possibilities: samplePossibilities.map(sp => sp.opIndex),
+        }));
+    const groups = _.groupBy(possibilities, ps => ps.opCode);
+
+    const map: any = {};
+    const intersectedPossibilities: any = {};
+    const opCodes = Object.keys(groups);
+    opCodes.forEach(opCode => {
+        const possibilityGroups = groups[opCode];
+        const possibleOpIndices = _.intersection(...possibilityGroups.map(pg => pg.possibilities));
+        intersectedPossibilities[opCode] = possibleOpIndices;
+    });
+
+    const trim = () => {
+        opCodes.forEach(opCode => {
+            if (intersectedPossibilities[opCode].length === 1) {
+                map[opCode] = intersectedPossibilities[opCode][0];
+                opCodes.forEach(innerOpCode => {
+                    if (innerOpCode === opCode) {
+                        return;
+                    }
+                    intersectedPossibilities[innerOpCode] = intersectedPossibilities[innerOpCode].filter((i: number) => i != map[opCode]);
+                });
+            }
+        });
+    };
+
+    trim();
+    trim();
+    trim();
+    trim();
+    trim();
+    trim();
+    trim();
+    trim();
+
+    return map;
 };
 
 export function solvePartOne(input: string[]) {
     const blocks = input[0].split(/\r?\n\r?\n/);
-    return blocks.map(countPossibleOpCodes).filter(c => c >= 3).length;
+    return blocks.map(countPossibleOps).filter(c => c >= 3).length;
 }
 
 export function solvePartTwo(input: string[]) {
-    return 0;
+    const map = getOpCodePairings(input[0]);
+
+    console.log(map);
+
+    const instructions = input[1].split(/\r?\n/).map(line => line.match(/(\d*) (\d*) (\d*) (\d*)/).slice(1).map(s => Number(s)));
+    let register = [0, 0, 0, 0];
+    instructions.forEach(i => {
+        register = operations[map[i[0]]](register, i);
+    });
+    return register[0];
 }

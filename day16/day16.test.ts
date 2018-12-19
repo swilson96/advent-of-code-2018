@@ -1,4 +1,4 @@
-import { solvePartOne, solvePartTwo, countPossibleOpCodes } from ".";
+import { solvePartOne, solvePartTwo, countPossibleOps } from ".";
 import input from "./input";
 
 const exampleSample = `Before: [3, 2, 1, 1]
@@ -10,7 +10,7 @@ const exampleInput = [exampleSample, ""];
 describe("day 16", () => {
   describe("countPossibleOpCodes", () => {
     it("should count possibilies of example sample", () => {
-      const answer = countPossibleOpCodes(exampleSample);
+      const answer = countPossibleOps(exampleSample);
       expect(answer).toBe(3);
     });
   });
@@ -24,8 +24,8 @@ describe("day 16", () => {
     expect(solvePartOne(input)).toBe(614);
   });
 
-  it("should solve first example of part two", () => {
-    const answer = solvePartTwo(exampleInput);
-    expect(answer).toBe(0);
+  it("should solve part two", () => {
+    const answer = solvePartTwo(input);
+    expect(answer).toBe(656);
   });
 });
