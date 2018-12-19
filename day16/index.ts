@@ -2,6 +2,29 @@ import _ from "lodash";
 
 const registerRegex = /\S*:\s*\[(\d*), (\d*), (\d*), (\d*)\]/;
 
+const opsMap: any = {
+    "addr": 0,
+    "addi": 1,
+    "mulr": 2,
+    "muli": 3,
+    "banr": 4,
+    "bani": 5,
+    "borr": 6,
+    "bori": 7,
+    "setr": 8,
+    "seti": 9,
+    "gtir": 10,
+    "gtri": 11,
+    "gtrr": 12,
+    "eqir": 13,
+    "eqri": 14,
+    "eqrr": 15,
+};
+
+export const operate = (r: number[], opName: string, opArgs: number[]) => {
+    return operations[opsMap[opName]](r.slice(), _.concat([0], opArgs));
+};
+
 const operations = [
     // addr (add register) stores into register C the result of adding register A and register B.
     (r: number[], i: number[]) => {
@@ -33,8 +56,6 @@ const operations = [
         r[i[3]] = r[i[1]] & i[2];
         return r;
     },
-    // Bitwise OR:
-
     // borr (bitwise OR register) stores into register C the result of the bitwise OR of register A and register B.
     (r: number[], i: number[]) => {
         r[i[3]] = r[i[1]] | r[i[2]];
