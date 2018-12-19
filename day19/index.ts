@@ -1,30 +1,37 @@
 import _ from "lodash";
-import { operate } from "../day16";
+import { operate, opsMap, operations } from "../day16";
 
-export function solvePartOne(input: string) {
+function solveForRegister(input: string, initialRegister: number[]) {
     const lines = input.split(/\r?\n/);
     const instructions = lines.slice(1).map(l => {
         const bits = l.match(/(\S*) (\d*) (\d*) (\d*)/);
         const opName = bits[1];
+        const originalOp = operations[opsMap[opName]];
         const opArgs = bits.slice(2).map(a => Number(a));
-        return { opName, opArgs };
+        const modifiedOpArgs = _.concat([0], opArgs);
+        const operation = (r: number[]) => originalOp(r, modifiedOpArgs);
+        return { opName, opArgs, operation, asString: l };
     });
-    let register = [0, 0, 0, 0, 0 ,0];
+    let register = initialRegister;
     const ipAddress = Number(lines[0].split(/\s/)[1]);
-    let ipVal = 0;
+    let ipVal = initialRegister[ipAddress];
 
     let clockTime = 0;
-    const timeout = 10000000;
+    const timeout = 1000000000;
     while (0 <= ipVal && ipVal < instructions.length && clockTime < timeout) {
         register[ipAddress] = ipVal;
+
+        const oldReg = register.slice();
+
         const i = instructions[ipVal];
-        const newRegister = operate(register, i.opName, i.opArgs);
+        register = i.operation(register);
 
-        // console.log(`#ip=${ipVal} [${register}] ${i} [${newRegister}]`);
+        if (clockTime % 1000000 == 1) {
+            // console.log(`${("        " + clockTime).slice(-8)} #ip=${ipVal} [${oldReg}] ${i.asString} [${register}]`);
+        }
 
-        ipVal = newRegister[ipAddress];
+        ipVal = register[ipAddress];
         ++ipVal;
-        register = newRegister;
         ++clockTime;
     }
 
@@ -35,6 +42,10 @@ export function solvePartOne(input: string) {
     return register[0];
 }
 
+export function solvePartOne(input: string) {
+    return solveForRegister(input, [0, 0, 0, 0, 0 ,0]);
+}
+
 export function solvePartTwo(input: string) {
-    return 0;
+    return solveForRegister(input, [1, 0, 0, 0, 0 ,0]);
 }

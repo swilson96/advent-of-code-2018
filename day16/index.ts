@@ -2,7 +2,7 @@ import _ from "lodash";
 
 const registerRegex = /\S*:\s*\[(\d*), (\d*), (\d*), (\d*)\]/;
 
-const opsMap: any = {
+export const opsMap: any = {
     "addr": 0,
     "addi": 1,
     "mulr": 2,
@@ -25,7 +25,7 @@ export const operate = (r: number[], opName: string, opArgs: number[]) => {
     return operations[opsMap[opName]](r.slice(), _.concat([0], opArgs));
 };
 
-const operations = [
+export const operations = [
     // addr (add register) stores into register C the result of adding register A and register B.
     (r: number[], i: number[]) => {
         r[i[3]] = r[i[1]] + r[i[2]];

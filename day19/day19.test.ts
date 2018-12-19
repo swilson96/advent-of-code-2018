@@ -19,9 +19,4 @@ describe("day 19", () => {
   it("should solve part 1 correctly", () => {
     expect(solvePartOne(input)).toBe(1344);
   });
-
-  it("should solve part two", () => {
-    // const answer = solvePartTwo(input);
-    // expect(answer).toBe(0);
-  });
 });
