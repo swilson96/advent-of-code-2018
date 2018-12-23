@@ -25,6 +25,6 @@ describe("day 17", () => {
 
   it("should solve first example of part two", () => {
     const answer = solvePartTwo(exampleInput);
-    expect(answer).toBe(0);
+    expect(answer).toBe(29);
   });
 });

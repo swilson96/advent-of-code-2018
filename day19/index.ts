@@ -43,9 +43,9 @@ function solveForRegister(input: string, initialRegister: number[]) {
 }
 
 export function solvePartOne(input: string) {
-    return solveForRegister(input, [0, 0, 0, 0, 0 ,0]);
+    return solveForRegister(input, [0, 0, 0, 0, 0, 0]);
 }
 
 export function solvePartTwo(input: string) {
-    return solveForRegister(input, [1, 0, 0, 0, 0 ,0]);
+    return solveForRegister(input, [1, 0, 0, 0, 0, 0]);
 }

@@ -52,6 +52,7 @@ export class Ground {
             yRange.push(Number(chunks[0].split("=")[1]));
             xRange = chunks[1].split("=")[1].split("..").map(s => Number(s));
         }
+
         return { xRange, yRange };
     }
 
@@ -73,6 +74,11 @@ export class Ground {
             nextPoint = new Point(nextPoint.x, nextPoint.y + 1);
             this.nextMap[nextPoint.y][nextPoint.x] = "|";
             nextTarget = this.map[nextPoint.y + 1] ? this.map[nextPoint.y + 1][nextPoint.x] : undefined;
+        }
+
+        if (nextTarget === "|") {
+            // Hit something that is already full
+            return [];
         }
 
         if (nextTarget) {
@@ -110,7 +116,7 @@ export class Ground {
                 // console.log(`${nextPoint} hit existing water and thinks it is already overflowing`);
                 return [];
             }
-            
+
             if (didSeeOtherFlow) {
                 // Another stream is already filling the next layer as we speak
                 // We need to coordinate with it, since it isn't full
@@ -135,15 +141,15 @@ export class Ground {
 
         // go left
         let i = 1;
-        let left = this.map[e.y][e.x - i]
-        let belowLeft = this.map[e.y + 1][e.x - i]
+        let left = this.map[e.y][e.x - i];
+        let belowLeft = this.map[e.y + 1][e.x - i];
         while (left && left !== "#" && belowLeft !== "." && belowLeft !== "|") {
             this.nextMap[e.y][e.x - i] = "~";
 
             ++i;
 
-            left = this.map[e.y][e.x - i]
-            belowLeft = this.map[e.y + 1][e.x - i]
+            left = this.map[e.y][e.x - i];
+            belowLeft = this.map[e.y + 1][e.x - i];
         }
 
         if (belowLeft === ".") {
@@ -167,15 +173,15 @@ export class Ground {
 
         // go right
         let j = 1;
-        let right = this.map[e.y][e.x + j]
-        let belowRight = this.map[e.y + 1][e.x + j]
+        let right = this.map[e.y][e.x + j];
+        let belowRight = this.map[e.y + 1][e.x + j];
         while (right && right !== "#" && belowRight !== "." && belowRight !== "|") {
             this.nextMap[e.y][e.x + j] = "~";
 
             ++j;
 
-            right = this.map[e.y][e.x + j]
-            belowRight = this.map[e.y + 1][e.x + j]
+            right = this.map[e.y][e.x + j];
+            belowRight = this.map[e.y + 1][e.x + j];
         }
 
         if (belowRight === ".") {
@@ -197,6 +203,23 @@ export class Ground {
             finish = true;
         }
 
+        // Identify the width of this layer of water
+        // go left
+        i = 1;
+        left = this.map[e.y][e.x - i];
+        while (left === "~") {
+            ++i;
+            left = this.map[e.y][e.x - i];
+        }
+
+        // go right
+        j = 1;
+        right = this.map[e.y][e.x + j];
+        while (right === "~") {
+            ++j;
+            right = this.map[e.y][e.x + j];
+        }
+
         if (nextDrops.length || finish) {
             return nextDrops;
         }
@@ -207,34 +230,15 @@ export class Ground {
             return [upOne];
         }
 
-        const pipes = [];
-
-        // Identify the width of this layer of water
-        // go left
-        i = 1;
-        left = this.map[e.y][e.x - i]
-        while (left === "~") {
-            ++i;
-            left = this.map[e.y][e.x - i]
-        }
-
-        // go right
-        j = 1;
-        right = this.map[e.y][e.x + j]
-        while (right === "~") {
-            ++j;
-            right = this.map[e.y][e.x + j]
-        }
-
         // Search above this layer of water
         for (let k = 1 - i; k < j; ++k) {
             const upperThing = this.map[e.y - 1][e.x + k];
             if (upperThing === "|") {
-                pipes.push(new Point(e.x + k, e.y - 1));
+                nextDrops.push(new Point(e.x + k, e.y - 1));
             }
         }
 
-        return pipes;
+        return nextDrops;
     }
 
     public pourOnWater(time: number) {
@@ -242,7 +246,7 @@ export class Ground {
         const newEnds = _.flatMap(this.endsOfSpouts, e => {
             const currentEnd = this.map[e.y][e.x];
             if (currentEnd === "|" || currentEnd === "+") {
-                let nextPoint = new Point(e.x, e.y + 1);
+                const nextPoint = new Point(e.x, e.y + 1);
                 if (!this.map[nextPoint.y]) {
                     return [];
                 }
@@ -268,6 +272,67 @@ export class Ground {
         this.map = this.nextMap;
     }
 
+    public classifyStable() {
+        this.nextMap = this.copyMap;
+
+        this.endsOfSpouts = [new Point(500, 0)];
+
+        while (this.endsOfSpouts.length) {
+            const newEnds = _.flatMap(this.endsOfSpouts, e => {
+                const currentEnd = this.map[e.y][e.x];
+                if (currentEnd === "|" || currentEnd === "+") {
+                    const nextPoint = new Point(e.x, e.y + 1);
+                    if (!this.map[nextPoint.y]) {
+                        return [];
+                    }
+                    const target = this.map[nextPoint.y][nextPoint.x];
+                    if (target === "|") {
+                        return [nextPoint];
+                    }
+                    if (target === "~") {
+                        this.nextMap[nextPoint.y][nextPoint.x] = "|";
+
+                        // Identify the width of this layer of water
+                        // go left
+                        let i = 1;
+                        let left = this.map[nextPoint.y][nextPoint.x - i];
+                        while (left === "~") {
+                            this.nextMap[nextPoint.y][nextPoint.x - i] = "|";
+                            ++i;
+                            left = this.map[nextPoint.y][nextPoint.x - i];
+                        }
+
+                        // go right
+                        let j = 1;
+                        let right = this.map[nextPoint.y][nextPoint.x + j];
+                        while (right === "~") {
+                            this.nextMap[nextPoint.y][nextPoint.x + j] = "|";
+                            ++j;
+                            right = this.map[nextPoint.y][nextPoint.x + j];
+                        }
+
+                        const ends = [];
+                        if (right === "|") {
+                            ends.push(new Point(nextPoint.x + j, nextPoint.y));
+                        }
+
+                        if (left === "|") {
+                            ends.push(new Point(nextPoint.x - i, nextPoint.y));
+                        }
+
+                        return ends;
+                    }
+                }
+
+                // console.log(`Reached an end ${currentEnd} at time ${time}: ${e}`);
+                return [];
+            });
+            this.endsOfSpouts = _.uniq(newEnds.map(p => p.toString())).map(Point.fromString);
+        }
+
+        this.map = this.nextMap;
+    }
+
     public printout() {
         for (let y = 0; y <= _.min([600, this.yMax]); ++y) {
             console.log(`${("   " + y).slice(-4)}: ${this.map[y].join("")}`);
@@ -275,10 +340,22 @@ export class Ground {
         console.log(this.endsOfSpouts);
     }
 
+    public printSums() {
+        console.log(`Total water: ${this.sum}, of which is trapped: ${this.sumStableWater}`);
+    }
+
     public get sum() {
         let sum = 0;
         for (let y = this.yMin; y <= this.yMax; ++y) {
             sum += this.map[y].reduce((acc, tile) => (tile === "~" || tile === "|") ? acc + 1 : acc, 0);
+        }
+        return sum;
+    }
+
+    public get sumStableWater() {
+        let sum = 0;
+        for (let y = this.yMin; y <= this.yMax; ++y) {
+            sum += this.map[y].reduce((acc, tile) => tile === "~" ? acc + 1 : acc, 0);
         }
         return sum;
     }
@@ -297,6 +374,8 @@ export class Ground {
         if (time === timeout) {
             console.log("Timeout!");
         }
+
+        this.classifyStable();
     }
 }
 
@@ -309,9 +388,17 @@ export function solvePartOne(input: string) {
 
     // ground.printout();
 
+    ground.printSums();
+
     return ground.sum;
 }
 
 export function solvePartTwo(input: string) {
-    return 0;
+    const ground = new Ground(input);
+
+    ground.pourUntilStable();
+
+    ground.printSums();
+
+    return ground.sumStableWater;
 }
