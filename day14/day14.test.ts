@@ -27,7 +27,22 @@ describe("day 14", () => {
   });
 
   it("should solve first example of part two", () => {
-    const answer = solvePartTwo("9");
-    expect(answer).toBe(0);
+    const answer = solvePartTwo("51589");
+    expect(answer).toBe(9);
+  });
+
+  it("should solve first example of part two", () => {
+    const answer = solvePartTwo("01245");
+    expect(answer).toBe(5);
+  });
+
+  it("should solve first example of part two", () => {
+    const answer = solvePartTwo("92510");
+    expect(answer).toBe(18);
+  });
+
+  it("should solve first example of part two", () => {
+    const answer = solvePartTwo("59414");
+    expect(answer).toBe(2018);
   });
 });
