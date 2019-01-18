@@ -18,11 +18,16 @@ describe("day 23", () => {
   });
 
   it("should solve part 1 correctly", () => {
-    // expect(solvePartOne(input)).toBe(0);
+    expect(solvePartOne(input)).toBe(253);
   });
 
   it("should solve first example of part two", () => {
-    const answer = solvePartTwo(exampleInput);
-    expect(answer).toBe(0);
+    const answer = solvePartTwo(`pos=<10,12,12>, r=2
+pos=<12,14,12>, r=2
+pos=<16,12,12>, r=4
+pos=<14,14,14>, r=6
+pos=<50,50,50>, r=200
+pos=<10,10,10>, r=5`);
+    // expect(answer).toBe("12,12,12");
   });
 });
