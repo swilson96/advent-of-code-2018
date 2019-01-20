@@ -16,7 +16,13 @@ const exampleInputTwo = String.raw`/->-\
 \-+-/  \-+--/
   \------/   `;
 
-const partTwoExampleInput = String.raw``;
+const partTwoExampleInput = String.raw`/>-<\  
+|   |  
+| /<+-\
+| | | v
+\>+</ |
+  |   ^
+  \<->/`;
 
 describe("day 13", () => {
   it("should solve first example", () => {
@@ -36,5 +42,10 @@ describe("day 13", () => {
   it("should solve first example of part two", () => {
     const answer = solvePartTwo(partTwoExampleInput);
     expect(answer).toBe("6,4");
+  });
+
+  it("should solve part two", () => {
+    const answer = solvePartTwo(input);
+    expect(answer).toBe("69,73");
   });
 });

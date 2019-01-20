@@ -92,75 +92,122 @@ class Cart {
     }
 
     public toString() {
-        return `Cart: ${this.direction} at ${this.position.toString()} (next turn ${this._nextTurn})`;
+        return `[${this.direction} @ ${this.position.toString()}; turn ${this._nextTurn}]`;
     }
 }
 
-const moveCart = (cart: Cart, reverseGrid: string[][]) => {
-    const nextPlace = cart.nextPosition;
-    if (!reverseGrid[nextPlace.y]) {
-        console.log("off the top or bottom! y coord: " + nextPlace.y);
-        console.log(cart.toString());
-        console.log(`next position apparently: ${nextPlace.toString()}`);
-    } else if (nextPlace.x >= reverseGrid[nextPlace.y].length) {
-        console.log("off to the right!");
-        console.log(cart.toString());
-        console.log(`next position apparently: ${nextPlace.toString()}`);
-        console.log(`next track apparently: ${reverseGrid[nextPlace.y][nextPlace.x]}`);
+abstract class BaseCartTrack {
+    private reverseGrid: string[][];
+    protected carts: Cart[];
+    protected cartIndex: number = 0;
+
+    constructor (input: string) {
+        this.reverseGrid = input.split(/\r?\n/).map(l => l.split(""));
+        this.carts = this.reverseGrid.reduce((acc, row, y) => row.reduce((rowAcc, thing, x) => {
+            if (_.includes(["<", ">", "^", "v"], thing)) {
+                return [...rowAcc, new Cart(thing, new Point(x, y))];
+            }
+            return rowAcc;
+        }, acc), [] as Cart[]);
+
+        // console.log(this.carts);
     }
 
-    const nextTrack = reverseGrid[nextPlace.y][nextPlace.x];
-    return cart.move(nextTrack);
-};
-
-const collision = (cart: Cart, carts: Cart[]) => {
-    for (let i = 0; i < carts.length; ++i) {
-        const other = carts[i];
-        if (other.position.equals(cart.position)) {
-            return true;
+    private moveCart = () => {
+        const cart = this.carts[this.cartIndex];
+        const nextPlace = cart.nextPosition;
+        if (!this.reverseGrid[nextPlace.y]) {
+            console.log("off the top or bottom! y coord: " + nextPlace.y);
+            console.log(cart.toString());
+            console.log(`next position apparently: ${nextPlace.toString()}`);
+        } else if (nextPlace.x >= this.reverseGrid[nextPlace.y].length) {
+            console.log("off to the right!");
+            console.log(cart.toString());
+            console.log(`next position apparently: ${nextPlace.toString()}`);
+            console.log(`next track apparently: ${this.reverseGrid[nextPlace.y][nextPlace.x]}`);
         }
+    
+        const nextTrack = this.reverseGrid[nextPlace.y][nextPlace.x];
+        return cart.move(nextTrack);
+    };
+
+    protected abstract handleCollision(cartWhichJustMoved: Cart, collidingCartIndex: number): string;
+
+    public play() {
+        this.cartIndex = 0;
+        let tick = 0;
+        while (tick < 100000) {
+            while (this.cartIndex < this.carts.length) {
+                const newCart = this.moveCart();
+                const collidingCartIndex = this.checkForCollision(newCart);
+                if (collidingCartIndex || collidingCartIndex === 0) {
+                    // Boom!
+                    // console.log("collision! at " + newCart.position.toString());
+                    const ret = this.handleCollision(newCart, collidingCartIndex);
+                    if (ret) {
+                        return ret;
+                    }
+                } else {
+                    // console.log(`cart ${this.cartIndex} just moved, new position: ${newCart.position.toString()}`);
+                    this.carts[this.cartIndex] = newCart;
+                    ++this.cartIndex;
+                }
+            }
+            if (this.carts.length === 1) {
+                const c = this.carts[0];
+                return `${c.position.x},${c.position.y}`;
+            }
+            this.cartIndex = 0;
+            // sort carts for next move
+            this.carts = _.sortBy(this.carts, c => c.position.y, c => c.position.x);
+            ++tick;
+            // console.log(`tick: ${tick}, carts: ${this.carts.map(c => c.toString())}`);
+        }
+        return "";
     }
-    return false;
-};
+
+    private checkForCollision(cartWhichJustMoved: Cart): number {
+        for (let i = 0; i < this.carts.length; ++i) {
+            const other = this.carts[i];
+            if (other.position.equals(cartWhichJustMoved.position)) {
+                return i;
+            }
+        }
+        return null;
+    };
+}
+
+class PartOneCartTrack extends BaseCartTrack {
+    protected handleCollision(cartWhichJustMoved: Cart, collidingCartIndex: number) {
+        return `${cartWhichJustMoved.position.x},${cartWhichJustMoved.position.y}`;
+    };
+}
+
+class PartTwoCartTrack extends BaseCartTrack {
+    protected handleCollision(cartWhichJustMoved: Cart, collidingCartIndex: number): string {
+        const current = this.carts[this.cartIndex];
+        const target = this.carts[collidingCartIndex]
+        // console.log("collision! removing " + current.toString() + " and " + target.toString());
+
+        _.remove(this.carts, c => (c === current || c === target));
+
+        // reduce cart index by one if i < cartIndex (i can't be equal)
+        if (collidingCartIndex < this.cartIndex) {
+            --this.cartIndex;
+        }
+
+        // console.log("number of carts left: " + this.carts.length);
+
+        return null;
+    };
+}
 
 export function solvePartOne(input: string) {
-    const reverseGrid = input.split(/\r?\n/).map(l => l.split(""));
-    let carts: Cart[] = reverseGrid.reduce((acc, row, y) => row.reduce((rowAcc, thing, x) => {
-        if (_.includes(["<", ">", "^", "v"], thing)) {
-            return [...rowAcc, new Cart(thing, new Point(x, y))];
-        }
-        return rowAcc;
-    }, acc), [] as Cart[]);
-
-    // for (let y = 1; y < reverseGrid.length; ++y) {
-    //     console.log(reverseGrid[y]);
-    // }
-
-    let cartIndex = 0;
-    const numCarts = carts.length;
-
-    // console.log(carts);
-
-    let timeout = 0;
-    while (timeout < 10000) {
-        while (cartIndex < numCarts) {
-            const newCart = moveCart(carts[cartIndex], reverseGrid);
-            if (collision(newCart, carts)) {
-                // Boom!
-                return `${newCart.position.x},${newCart.position.y}`;
-            }
-            carts[cartIndex] = newCart;
-            ++cartIndex;
-            // console.log(carts);
-        }
-        cartIndex = 0;
-        // sort carts for next move
-        carts = _.sortBy(carts, c => c.position.y, c => c.position.x);
-        ++timeout;
-    }
-    return "";
+    const track = new PartOneCartTrack(input);
+    return track.play();
 }
 
 export function solvePartTwo(input: string) {
-    return 0;
+    const track = new PartTwoCartTrack(input);
+    return track.play();
 }

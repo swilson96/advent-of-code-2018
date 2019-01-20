@@ -21,7 +21,7 @@ function solveForRegister(input: string, initialRegister: number[]) {
     while (0 <= ipVal && ipVal < instructions.length && clockTime < timeout) {
         register[ipAddress] = ipVal;
 
-        const oldReg = register.slice();
+        // const oldReg = register.slice();
 
         const i = instructions[ipVal];
         register = i.operation(register);
