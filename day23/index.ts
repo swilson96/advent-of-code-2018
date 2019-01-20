@@ -94,7 +94,7 @@ export function solvePartTwo(input: string) {
         // const yRange = [f.y - r, f.y + r];
         // const zRange = [f.z - r, f.z + r];
 
-        console.log(`bot range: ${xRange[1] - xRange[0]}, ${yRange[1] - yRange[0]}, ${zRange[1] - zRange[0]}`)
+        console.log(`bot range: ${xRange[1] - xRange[0]}, ${yRange[1] - yRange[0]}, ${zRange[1] - zRange[0]}`);
 
         const searchDensity = Math.max(1, _.floor((xRange[1] - xRange[0]) / 100));
 
@@ -136,5 +136,5 @@ export function solvePartTwo(input: string) {
     //     }
     // }
 
-    return _.map(maxScorePositions, s => s.distanceFrom(new Point(0, 0, 0))).sort((a,b) => a - b)[0];
+    return _.map(maxScorePositions, s => s.distanceFrom(new Point(0, 0, 0))).sort((a, b) => a - b)[0];
 }
