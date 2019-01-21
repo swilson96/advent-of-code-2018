@@ -87,7 +87,7 @@ describe("day 22", () => {
   });
 
   it("should solve first example", () => {
-    const answer = solvePartOne({ depth: 510, target: new Point(10, 10)});
+    const answer = solvePartOne({ depth: 510, target: { x: 10, y: 10 } });
     expect(answer).toBe(114);
   });
 
@@ -96,7 +96,12 @@ describe("day 22", () => {
   });
 
   it("should solve first example of part two", () => {
-    // const answer = solvePartTwo(exampleInput);
+    const answer = solvePartTwo({ depth: 510, target: { x: 10, y: 10 } });
+    expect(answer).toBe(45);
+  });
+
+  it("should solve part two", () => {
+    // const answer = solvePartTwo(input);
     // expect(answer).toBe(0);
   });
 });
