@@ -17,7 +17,7 @@ const equipmentToString = (e: number) => {
         default:
             throw new Error("Invalid equipment: " + e);
     }
-}
+};
 
 const areaTypeToString = (t: number) => {
     switch (t) {
@@ -30,7 +30,7 @@ const areaTypeToString = (t: number) => {
         default:
             throw new Error("Invalid terrain: " + t);
     }
-}
+};
 
 export class Cave {
     private _depth: number;
@@ -60,7 +60,7 @@ export class Cave {
             this._geoCave[x][0] = (x * 16807) % 20183;
             this._riskCave[x][0] = this.calculateRiskAt(x, 0);
             for (let y = 1; y <= this._max.y; ++y) {
-                if (x === target.x && y === target.y) {
+                if (x == target.x && y == target.y) {
                     this._geoCave[x][y] = 0;
                 } else {
                     this._geoCave[x][y] = (this.erosionIndexAt(x - 1, y) * this.erosionIndexAt(x, y - 1)) % 20183;
@@ -138,8 +138,8 @@ export class Cave {
         const Neither = 0;
 
         const Q: Situation[] = []; // Consider e.g. "<0,0> with climbing gear" as a situation
-        let dist: number[][][] = [];
-        let refs: Situation[][][] = [];
+        const dist: number[][][] = [];
+        const refs: Situation[][][] = [];
         for (let x = 0; x <= this._max.x; ++x) {
             dist[x] = [];
             refs[x] = [];
@@ -148,7 +148,7 @@ export class Cave {
                 refs[x][y] = [];
                 for (let e = 0; e < 3; ++e) {
                     // Don't bother listing situations that we can't get to
-                    if (e !== this.riskAt(x, y)) {
+                    if (e != this.riskAt(x, y)) {
                         const here = new Situation(x, y, e);
                         Q.push(here);
                         refs[x][y][e] = here;
@@ -170,15 +170,15 @@ export class Cave {
 
             // console.log(`Examining ${u.toString()} in ${areaTypeToString(type)}, distance ${distanceToU}, nodes left ${Q.length}`);
 
-            if (Q.length % 1000 === 0) {
-                console.log(`${((totalNodes - Q.length) * 100/totalNodes).toFixed(2)}% done`);
+            if (Q.length % 1000 == 0) {
+                console.log(`${((totalNodes - Q.length) * 100 / totalNodes).toFixed(2)}% done`);
             }
-            if (distanceToU === undefined) {
+            if (distanceToU == undefined) {
                 console.log("no new situations exist that I can get to");
                 break;
             }
 
-            if (u.x === this._target.x && u.y === this._target.y && u.e === Torch) {
+            if (u.x == this._target.x && u.y == this._target.y && u.e == Torch) {
                 console.log("distance to target now fixed, stopping");
                 break;
             }
@@ -209,12 +209,12 @@ export class Cave {
 
             const checkAndPushMove = (newX: number, newY: number) => {
                 const nextType = this.riskAt(newX, newY);
-                if (nextType === e) {
+                if (nextType == e) {
                     // you can't have them matching (rock/neither, wet/torch, narrow/gear)
                     return;
                 }
                 neighbours.push({ n: refs[newX][newY][e], d: 1});
-            }
+            };
 
             if (u.x > 0) checkAndPushMove(u.x - 1, u.y);
             if (u.y > 0) checkAndPushMove(u.x, u.y - 1);

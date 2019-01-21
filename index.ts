@@ -7,7 +7,7 @@ const timedOutput = (dayString: string, part: string, solution: any, input: any)
     const stop = new Date().getTime();
     const duration = stop - start;
     console.log(`${dayString} part ${part} complete in ${(duration / 1000).toFixed(1)} secs: ${result}`);
-}
+};
 
 const outputForDay = (dayString: string) => {
     const input = require("./" + dayString + "/input")["default"];
