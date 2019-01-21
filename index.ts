@@ -1,12 +1,20 @@
 import * as fs from "fs";
 import * as path from "path";
 
+const timedOutput = (dayString: string, part: string, solution: any, input: any) => {
+    const start = new Date().getTime();
+    const result = solution(input);
+    const stop = new Date().getTime();
+    const duration = stop - start;
+    console.log(`${dayString} part ${part} complete in ${(duration / 1000).toFixed(1)} secs: ${result}`);
+}
+
 const outputForDay = (dayString: string) => {
     const input = require("./" + dayString + "/input")["default"];
     const p1 = require("./" + dayString)["solvePartOne"];
     const p2 = require("./" + dayString)["solvePartTwo"];
-    console.log(`${dayString} part one: ${p1(input)}`);
-    console.log(`${dayString} part two: ${p2(input)}`);
+    timedOutput(dayString, "one", p1, input);
+    timedOutput(dayString, "twp", p2, input);
 };
 
 const name = process.argv[2];

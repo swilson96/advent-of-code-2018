@@ -19,6 +19,19 @@ const equipmentToString = (e: number) => {
     }
 }
 
+const areaTypeToString = (t: number) => {
+    switch (t) {
+        case 0:
+            return "Rocky";
+        case 1:
+            return "Wet";
+        case 2:
+            return "Narrow";
+        default:
+            throw new Error("Invalid terrain: " + t);
+    }
+}
+
 export class Cave {
     private _depth: number;
     private _target: Point;
@@ -26,11 +39,11 @@ export class Cave {
     private _riskCave: number[][];
     private _max: Point;
 
-    constructor({ depth, target }: CaveDef) {
+    constructor({ depth, target }: CaveDef, extra: number = 6) {
         this._depth = depth;
         this._target = new Point(target.x, target.y);
 
-        this._max = new Point(target.x + 6, target.y + 6);
+        this._max = new Point(target.x + extra, target.y + extra);
         this._geoCave = [];
         this._geoCave[0] = [];
         this._geoCave[0][0] = 0;
@@ -118,27 +131,28 @@ export class Cave {
 
     public djikstraToTarget() {
         // https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Pseudocode
-        const Torch = 0;
-        const ClimbingGear = 1;
-        const Neither = 2;
 
-        const Q: Place[] = []; // Consider e.g. "<0,0> with climbing gear" as a place
+        // Numbers chosen for speed later
+        const Torch = 1;
+        const ClimbingGear = 2;
+        const Neither = 0;
+
+        const Q: Situation[] = []; // Consider e.g. "<0,0> with climbing gear" as a situation
         let dist: number[][][] = [];
-        // let prev: number[][][] = [];
-        let refs: Place[][][] = [];
+        let refs: Situation[][][] = [];
         for (let x = 0; x <= this._max.x; ++x) {
             dist[x] = [];
-            // prev[x] = [];
             refs[x] = [];
             for (let y = 0; y <= this._max.y; ++y) {
                 dist[x][y] = [];
-                // prev[x][y] = [];
                 refs[x][y] = [];
                 for (let e = 0; e < 3; ++e) {
-                    //dist[x][y][e] = Number.POSITIVE_INFINITY;
-                    const here = new Place(x, y, e);
-                    Q.push(here);
-                    refs[x][y][e] = here;
+                    // Don't bother listing situations that we can't get to
+                    if (e !== this.riskAt(x, y)) {
+                        const here = new Situation(x, y, e);
+                        Q.push(here);
+                        refs[x][y][e] = here;
+                    }
                 }
             }
         }
@@ -146,21 +160,26 @@ export class Cave {
         // You start at 0,0 (the mouth of the cave) with the torch equipped
         dist[0][0][Torch] = 0;
 
+        const totalNodes = Q.length;
+
         while (Q.length > 0) {
             const u = _.sortBy(Q, q => dist[q.x][q.y][q.e])[0];
             const distanceToU = dist[u.x][u.y][u.e];
             const type = this.riskAt(u.x, u.y);
             const e = u.e;
 
-            // console.log(`Examining ${u.toString()} in area type ${type}, distance is ${distanceToU}`);
+            // console.log(`Examining ${u.toString()} in ${areaTypeToString(type)}, distance ${distanceToU}, nodes left ${Q.length}`);
 
+            if (Q.length % 1000 === 0) {
+                console.log(`${((totalNodes - Q.length) * 100/totalNodes).toFixed(2)}% done`);
+            }
             if (distanceToU === undefined) {
-                console.log("no new places exist that I can get to");
+                console.log("no new situations exist that I can get to");
                 break;
             }
 
             if (u.x === this._target.x && u.y === this._target.y && u.e === Torch) {
-                console.log("distance to target now fixed");
+                console.log("distance to target now fixed, stopping");
                 break;
             }
 
@@ -168,34 +187,33 @@ export class Cave {
 
             const neighbours = [];
 
-            switch (type) {
-                case 0: // rock
-                    if (e === Torch) neighbours.push({ n: refs[u.x][u.y][ClimbingGear], d: 7});
-                    if (e === ClimbingGear) neighbours.push({ n: refs[u.x][u.y][Torch], d: 7});
-                    break;
-                case 1: // wet
-                    if (e === Neither) neighbours.push({ n: refs[u.x][u.y][ClimbingGear], d: 7});
-                    if (e === ClimbingGear) neighbours.push({ n: refs[u.x][u.y][Neither], d: 7});
-                    break;
-                case 2: // narrow
-                    if (e === Neither) neighbours.push({ n: refs[u.x][u.y][Torch], d: 7});
-                    if (e === Torch) neighbours.push({ n: refs[u.x][u.y][Neither], d: 7});
-                    break;
-            }
+            neighbours.push({ n: refs[u.x][u.y][3 - type - e], d: 7});
+
+            // switch (type) {
+            //     // torch: 1, cg 2
+            //     // add 3 - type - e
+            //     // replaced with the above
+            //     case 0: // rock
+            //         if (e === Torch) neighbours.push({ n: refs[u.x][u.y][ClimbingGear], d: 7});
+            //         if (e === ClimbingGear) neighbours.push({ n: refs[u.x][u.y][Torch], d: 7});
+            //         break;
+            //     case 1: // wet
+            //         if (e === Neither) neighbours.push({ n: refs[u.x][u.y][ClimbingGear], d: 7});
+            //         if (e === ClimbingGear) neighbours.push({ n: refs[u.x][u.y][Neither], d: 7});
+            //         break;
+            //     case 2: // narrow
+            //         if (e === Neither) neighbours.push({ n: refs[u.x][u.y][Torch], d: 7});
+            //         if (e === Torch) neighbours.push({ n: refs[u.x][u.y][Neither], d: 7});
+            //         break;
+            // }
 
             const checkAndPushMove = (newX: number, newY: number) => {
                 const nextType = this.riskAt(newX, newY);
-                switch (nextType) {
-                    case 0: // rock
-                        if (e === Torch || e === ClimbingGear) neighbours.push({ n: refs[newX][newY][e], d: 1});
-                        break;
-                    case 1: // wet
-                        if (e === Neither || e === ClimbingGear) neighbours.push({ n: refs[newX][newY][e], d: 1});
-                        break;
-                    case 2: // narrow
-                        if (e === Torch || e === Neither) neighbours.push({ n: refs[newX][newY][e], d: 1});
-                        break;
+                if (nextType === e) {
+                    // you can't have them matching (rock/neither, wet/torch, narrow/gear)
+                    return;
                 }
+                neighbours.push({ n: refs[newX][newY][e], d: 1});
             }
 
             if (u.x > 0) checkAndPushMove(u.x - 1, u.y);
@@ -217,7 +235,7 @@ export class Cave {
     }
 }
 
-class Place {
+class Situation {
     public x: number;
     public y: number;
     public e: number;
@@ -228,12 +246,8 @@ class Place {
         this.e = e;
     }
 
-    public get equipmentToString() {
-        return equipmentToString(this.e);
-    }
-
     public toString() {
-        return `<${this.x},${this.y},${this.equipmentToString}>`;
+        return `<${this.x},${this.y},${equipmentToString(this.e)}>`;
     }
 }
 
@@ -243,6 +257,6 @@ export function solvePartOne(input: CaveDef) {
 }
 
 export function solvePartTwo(input: CaveDef) {
-    const cave = new Cave(input);
+    const cave = new Cave(input, 0);
     return cave.djikstraToTarget();
 }
