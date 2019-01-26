@@ -30,18 +30,23 @@ class Point {
     public toString() {
         return `${this._x},${this._y},${this._z}`;
     }
+
+    public get moveIn() {
+        // Only works in positive quadrant ¯\_(ツ)_/¯
+        return new Point(this._x - 1, this._y - 1, this._z - 1);
+    }
 }
 
 class Bot {
-    private _range: number = 0;
-    private _position: Point;
+    private _r: number = 0;
+    private _p: Point;
 
     constructor(input: string) {
         const match = input.match(/pos=<([^,>]+),([^,>]+),([^,>]+)>, r=(\d+)/);
-        this._position = new Point(Number(match[1]), Number( match[2]), Number(match[3]));
-        this._range = Number(match[4]);
+        this._p = new Point(Number(match[1]), Number( match[2]), Number(match[3]));
+        this._r = Number(match[4]);
 
-        if (this._range < 0) {
+        if (this._r < 0) {
             console.error("negative range!?");
         }
     }
@@ -55,11 +60,22 @@ class Bot {
     }
 
     public get range() {
-        return this._range;
+        return this._r;
     }
 
     public get position() {
-        return this._position;
+        return this._p;
+    }
+
+    public get extremes() {
+        return [
+            new Point(this._p.x + this._r, this._p.y, this._p.z),
+            new Point(this._p.x - this._r, this._p.y, this._p.z),
+            new Point(this._p.x, this._p.y + this._r, this._p.z),
+            new Point(this._p.x, this._p.y - this._r, this._p.z),
+            new Point(this._p.x, this._p.y, this._p.z + this._r),
+            new Point(this._p.x, this._p.y, this._p.z - this._r),
+        ]
     }
 }
 
@@ -72,52 +88,31 @@ export function solvePartOne(input: string) {
 export function solvePartTwo(input: string) {
     const bots = input.split(/\r?\n/).map(l => new Bot(l));
 
-    const botsBotIsInRangeOf = (bot: Bot) => bots.filter(b => b.isOtherInRange(bot)).length;
-
-    const mn = _.orderBy(bots, botsBotIsInRangeOf)[0];
-    let f = mn.position;
-    let r = mn.range / 2;
+    const pointsToCheck = _.flatMap(bots, b => b.extremes);
 
     let maxScore = 0;
     let maxScorePositions: Point[] = [];
 
-    while (r > 100) {
+    const xs = bots.map(b => b.position.x);
+    const xRange = [_.min(xs), _.max(xs)];
+    const ys = bots.map(b => b.position.y);
+    const yRange = [_.min(ys), _.max(ys)];
+    const zs = bots.map(b => b.position.z);
+    const zRange = [_.min(zs), _.max(zs)];
 
-        const xs = bots.map(b => b.position.x);
-        const xRange = [_.min(xs), _.max(xs)];
-        const ys = bots.map(b => b.position.y);
-        const yRange = [_.min(ys), _.max(ys)];
-        const zs = bots.map(b => b.position.z);
-        const zRange = [_.min(zs), _.max(zs)];
+    console.log(`bot range: ${xRange[1] - xRange[0]}, ${yRange[1] - yRange[0]}, ${zRange[1] - zRange[0]}`);
 
-        // const xRange = [f.x - r, f.x + r];
-        // const yRange = [f.y - r, f.y + r];
-        // const zRange = [f.z - r, f.z + r];
+    const score = (position: Point) => bots.filter(b => b.isInRange(position)).length;
 
-        console.log(`bot range: ${xRange[1] - xRange[0]}, ${yRange[1] - yRange[0]}, ${zRange[1] - zRange[0]}`);
-
-        const searchDensity = Math.max(1, _.floor((xRange[1] - xRange[0]) / 100));
-
-        for (let x = xRange[0]; x <= xRange[1]; x += searchDensity) {
-            for (let y = yRange[0]; y <= yRange[1]; y += searchDensity) {
-                for (let z = zRange[0]; z <= zRange[1]; z += searchDensity) {
-                    const position = new Point(x, y, x);
-                    const score = bots.filter(b => b.isInRange(position)).length;
-                    if (score === maxScore) {
-                        maxScorePositions.push(position);
-                    } else if (score > maxScore) {
-                        maxScore = score;
-                        maxScorePositions = [position];
-                    }
-                }
-            }
+    pointsToCheck.forEach(position => {
+        const thisScore = score(position);
+        if (thisScore === maxScore) {
+            maxScorePositions.push(position);
+        } else if (thisScore > maxScore) {
+            maxScore = thisScore;
+            maxScorePositions = [position];
         }
-
-        f = _.orderBy(maxScorePositions, s => s.distanceFrom(new Point(0, 0, 0)))[0];
-        r = searchDensity;
-
-        console.log(`max within current density was ${f.toString()} with ${maxScore} in range, new search density is ${searchDensity}`);
-    }
+    });
 
     // let maxScore = 0;
     // maxScorePositions = [];
@@ -135,6 +130,9 @@ export function solvePartTwo(input: string) {
     //         }
     //     }
     // }
+
+    console.log(`max score positions (${maxScorePositions.length}), score ${maxScore}:`);
+    maxScorePositions.forEach(p => console.log(p.toString()));
 
     return _.map(maxScorePositions, s => s.distanceFrom(new Point(0, 0, 0))).sort((a, b) => a - b)[0];
 }
