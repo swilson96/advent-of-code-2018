@@ -126,7 +126,7 @@ abstract class BaseCartTrack {
             console.log(`next position apparently: ${nextPlace.toString()}`);
             console.log(`next track apparently: ${this.reverseGrid[nextPlace.y][nextPlace.x]}`);
         }
-    
+
         const nextTrack = this.reverseGrid[nextPlace.y][nextPlace.x];
         return cart.move(nextTrack);
     };
@@ -173,20 +173,20 @@ abstract class BaseCartTrack {
                 return i;
             }
         }
-        return null;
-    };
+        return undefined;
+    }
 }
 
 class PartOneCartTrack extends BaseCartTrack {
     protected handleCollision(cartWhichJustMoved: Cart, collidingCartIndex: number) {
         return `${cartWhichJustMoved.position.x},${cartWhichJustMoved.position.y}`;
-    };
+    }
 }
 
 class PartTwoCartTrack extends BaseCartTrack {
     protected handleCollision(cartWhichJustMoved: Cart, collidingCartIndex: number): string {
         const current = this.carts[this.cartIndex];
-        const target = this.carts[collidingCartIndex]
+        const target = this.carts[collidingCartIndex];
         // console.log("collision! removing " + current.toString() + " and " + target.toString());
 
         _.remove(this.carts, c => (c === current || c === target));
@@ -198,8 +198,8 @@ class PartTwoCartTrack extends BaseCartTrack {
 
         // console.log("number of carts left: " + this.carts.length);
 
-        return null;
-    };
+        return undefined;
+    }
 }
 
 export function solvePartOne(input: string) {

@@ -172,7 +172,7 @@ export class Cave {
                 }
             }
             return pebble;
-        }
+        };
 
         while (Q.length > 0) {
             const uPair = pebbleSortLowest(Q);

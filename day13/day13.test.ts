@@ -9,15 +9,15 @@ v
 ^
 |`;
 
-const exampleInputTwo = String.raw`/->-\        
+const exampleInputTwo = String.raw`/->-\
 |   |  /----\
 | /-+--+-\  |
 | | |  | v  |
 \-+-/  \-+--/
   \------/   `;
 
-const partTwoExampleInput = String.raw`/>-<\  
-|   |  
+const partTwoExampleInput = String.raw`/>-<\
+|   |
 | /<+-\
 | | | v
 \>+</ |
