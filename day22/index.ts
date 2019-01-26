@@ -36,7 +36,7 @@ export class Cave {
     private _depth: number;
     private _target: Point;
     private _geoCave: number[][];
-    private _riskCave: number[][];
+    private _riskCave: { [key: number]: number };
     private _max: Point;
 
     constructor({ depth, target }: CaveDef, extra: number = 6) {
@@ -47,25 +47,24 @@ export class Cave {
         this._geoCave = [];
         this._geoCave[0] = [];
         this._geoCave[0][0] = 0;
-        this._riskCave = [];
-        this._riskCave[0] = [];
-        this._riskCave[0][0] = 0;
+        this._riskCave = {};
+
+        this.setRisk(0, 0, 0);
         for (let y = 1; y <= this._max.y; ++y) {
             this._geoCave[0][y] = (y * 48271) % 20183;
-            this._riskCave[0][y] = this.calculateRiskAt(0, y);
+            this.setRisk(0, y, this.calculateRiskAt(0, y));
         }
         for (let x = 1; x <= this._max.x; ++x) {
             this._geoCave[x] = [];
-            this._riskCave[x] = [];
             this._geoCave[x][0] = (x * 16807) % 20183;
-            this._riskCave[x][0] = this.calculateRiskAt(x, 0);
+            this.setRisk(x, 0, this.calculateRiskAt(x, 0));
             for (let y = 1; y <= this._max.y; ++y) {
                 if (x == target.x && y == target.y) {
                     this._geoCave[x][y] = 0;
                 } else {
                     this._geoCave[x][y] = (this.erosionIndexAt(x - 1, y) * this.erosionIndexAt(x, y - 1)) % 20183;
                 }
-                this._riskCave[x][y] = this.calculateRiskAt(x, y);
+                this.setRisk(x, y, this.calculateRiskAt(x, y));
             }
         }
     }
@@ -81,7 +80,11 @@ export class Cave {
 
     // risk = erosion level modulo 3
     public riskAt(x: number, y: number) {
-        return this._riskCave[x][y];
+        return this._riskCave[x * 2003 + y];
+    }
+
+    private setRisk(x: number, y: number, risk: number) {
+        this._riskCave[x * 2003 + y] = risk;
     }
 
     private calculateRiskAt(x: number, y: number) {
@@ -137,14 +140,14 @@ export class Cave {
         const ClimbingGear = 2;
         const Neither = 0;
 
+        const hash = (x: number, y: number, e: number) => (x << 12) + (y << 2) + e;
+
         const Q: Situation[] = []; // Consider e.g. "<0,0> with climbing gear" as a situation
-        const dist: number[][][] = [];
+        const dist: { [key: number]: number } = {};
         const refs: Situation[][][] = [];
         for (let x = 0; x <= this._max.x; ++x) {
-            dist[x] = [];
             refs[x] = [];
             for (let y = 0; y <= this._max.y; ++y) {
-                dist[x][y] = [];
                 refs[x][y] = [];
                 for (let e = 0; e < 3; ++e) {
                     // Don't bother listing situations that we can't get to
@@ -158,13 +161,13 @@ export class Cave {
         }
 
         // You start at 0,0 (the mouth of the cave) with the torch equipped
-        dist[0][0][Torch] = 0;
+        dist[hash(0,0,Torch)] = 0;
 
         const totalNodes = Q.length;
 
         while (Q.length > 0) {
-            const u = _.sortBy(Q, q => dist[q.x][q.y][q.e])[0];
-            const distanceToU = dist[u.x][u.y][u.e];
+            const u = _.sortBy(Q, q => dist[hash(q.x, q.y, q.e)])[0];
+            const distanceToU = dist[hash(u.x, u.y, u.e)];
             const type = this.riskAt(u.x, u.y);
             const e = u.e;
 
@@ -205,16 +208,16 @@ export class Cave {
             if (u.y < this._max.y) checkAndPushMove(u.x, u.y + 1);
 
             neighbours.forEach(v => {
-                const currentDistance = dist[v.n.x][v.n.y][v.n.e];
+                const currentDistance = dist[hash(v.n.x, v.n.y, v.n.e)];
                 const alt = v.d + distanceToU;
                 // console.log(`Checking neighbour ${v.n.toString()}, prev best ${currentDistance}, new best ${alt}`);
                 if (!currentDistance || currentDistance > alt) {
-                    dist[v.n.x][v.n.y][v.n.e] = alt;
+                    dist[hash(v.n.x, v.n.y, v.n.e)] = alt;
                 }
             });
         }
 
-        return dist[this._target.x][this._target.y][Torch];
+        return dist[hash(this._target.x, this._target.y, Torch)];
     }
 }
 
