@@ -76,6 +76,11 @@ ajv@^6.5.5:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
+almete.bronkerbosch@^18.1.14:
+  version "18.1.14"
+  resolved "https://registry.yarnpkg.com/almete.bronkerbosch/-/almete.bronkerbosch-18.1.14.tgz#cda0cb77a1a5802601d122bfac13b8b5617392cf"
+  integrity sha512-tIwGCYlns5aJlxLNspT6zxDHbzt4xt/8OYzcYpgSNndBDSyvlAEn5Lt+dUncisxKX3P536XAmP31iVLMEyB7Qw==
+
 ansi-align@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ansi-align/-/ansi-align-2.0.0.tgz#c36aeccba563b89ceb556f3690f0b1d9e3547f7f"

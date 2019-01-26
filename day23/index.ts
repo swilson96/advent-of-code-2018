@@ -1,4 +1,5 @@
 import _ from "lodash";
+import BronKerbosch from "almete.bronkerbosch";
 
 class Point {
     private _x: number;
@@ -42,6 +43,15 @@ class Point {
     }
 }
 
+export class Cuboid {
+    constructor(public T: Point, public B: Point, public N: Point, public S: Point, public E: Point, public W: Point) {
+    }
+
+    public intersect(other: Bot) {
+
+    }
+}
+
 class Bot {
     private _r: number = 0;
     private _p: Point;
@@ -60,6 +70,10 @@ class Bot {
         return this.isInRange(other.position);
     }
 
+    public overlaps(other: Bot) {
+        return this._p.distanceFrom(other.position) <= (this._r + other.range);
+    }
+
     public isInRange(position: Point) {
         return position.distanceFrom(this.position) <= this.range;
     }
@@ -73,14 +87,15 @@ class Bot {
     }
 
     public get extremes() {
-        return [
-            new Point(this._p.x + this._r, this._p.y, this._p.z),
-            new Point(this._p.x - this._r, this._p.y, this._p.z),
-            new Point(this._p.x, this._p.y + this._r, this._p.z),
-            new Point(this._p.x, this._p.y - this._r, this._p.z),
+        return new Cuboid(
+            // T, B, N, S, E, W,
             new Point(this._p.x, this._p.y, this._p.z + this._r),
             new Point(this._p.x, this._p.y, this._p.z - this._r),
-        ]
+            new Point(this._p.x, this._p.y + this._r, this._p.z),
+            new Point(this._p.x, this._p.y - this._r, this._p.z),
+            new Point(this._p.x + this._r, this._p.y, this._p.z),
+            new Point(this._p.x - this._r, this._p.y, this._p.z),
+        )
     }
 
     public get perimiter() {
@@ -108,45 +123,46 @@ export function solvePartOne(input: string) {
 export function solvePartTwo(input: string) {
     const bots = input.split(/\r?\n/).map(l => new Bot(l));
 
-    //const pointsToCheck = _.flatMap(bots, b => b.extremes);
-    const pointsToCheck = _.uniq(_.flatMap(bots, b => b.perimiter.map(b => b.toString()))).map(Point.fromString);
-
-    console.log(`points to check: ${pointsToCheck.length}`);
-
-    let maxScore = 0;
-    let maxScorePositions: Point[] = [];
-
-    const score = (position: Point) => bots.filter(b => b.isInRange(position)).length;
-
-    pointsToCheck.forEach(position => {
-        const thisScore = score(position);
-        if (thisScore === maxScore) {
-            maxScorePositions.push(position);
-        } else if (thisScore > maxScore) {
-            maxScore = thisScore;
-            maxScorePositions = [position];
+    const edges = [];
+    for (let i = 0; i < bots.length; ++i) {
+        const a = bots[i];
+        for (let j = i + 1; j < bots.length; ++j) {
+            if (a.overlaps(bots[j])) {
+                edges.push([i, j]);
+            }
         }
-    });
+    }
 
-    // let maxScore = 0;
-    // maxScorePositions = [];
-    // for (let x = sampleMax.x - SAMPLE_GRID_SIZE; x <= sampleMax.x + SAMPLE_GRID_SIZE; x += 1) {
-    //     for (let y = sampleMax.y - SAMPLE_GRID_SIZE; y <= sampleMax.y + SAMPLE_GRID_SIZE; y += 1) {
-    //         for (let z = sampleMax.z - SAMPLE_GRID_SIZE; z <= sampleMax.z + SAMPLE_GRID_SIZE; z += 1) {
-    //             const position = new Point(x, y, x);
-    //             const score = bots.filter(b => b.isInRange(position)).length;
-    //             if (score === maxScore) {
-    //                 maxScorePositions.push(position);
-    //             } else if (score > maxScore) {
-    //                 maxScore = score;
-    //                 maxScorePositions = [position];
-    //             }
-    //         }
-    //     }
-    // }
+    const cliques: number[][] = BronKerbosch(edges);
 
-    console.log(`max score positions (${maxScorePositions.length}), score ${maxScore}:`);
-    maxScorePositions.forEach(p => console.log(p.toString()));
+    const maxCliqueSize = _.max(cliques.map(c => c.length));
+    const maxCliques = cliques.filter(c => c.length == maxCliqueSize);
 
-    return _.map(maxScorePositions, s => s.distanceFrom(new Point(0, 0, 0))).sort((a, b) => a - b)[0];
+    console.log(`${maxCliques.length} maximal cliques of size ${maxCliqueSize}`);
+
+    // Finds the edges of the area of intersection of the given clique
+    const intersectionEdges = (clique: number[]) => {
+        const cbots = clique.map(c => bots[c]);
+        const extremes = cbots.map(b => b.extremes);
+        const range = [
+            _.min(extremes.map(e => e.T.z)),
+            _.max(extremes.map(e => e.B.z)),
+            _.min(extremes.map(e => e.N.y)),
+            _.max(extremes.map(e => e.S.y)),
+            _.min(extremes.map(e => e.E.x)),
+            _.max(extremes.map(e => e.W.x)),
+        ];
+        // const smallestRange = _.min(cbots.map(b => b.range));
+        // const smallestBot = cbots.find(b => b.range === smallestRange);
+        // let intersection = smallestBot.extremes;
+        // cbots.forEach(bot => {
+        //     intersection = intersection.intersect(bot.extremes);
+        // });
+        console.log(`range (T,B,N,S,E,W): ${range}`);
+        console.log(`size: ${range[0] - range[1]} x ${range[2] - range[3]} x ${range[4] - range[5]}}`);
+        return range;
+    }
+
+    const maxScorePositions = _.flatMap(maxCliques, intersectionEdges);
+    //return _.map(maxScorePositions, s => s.distanceFrom(new Point(0, 0, 0))).sort((a, b) => a - b)[0];
 }
