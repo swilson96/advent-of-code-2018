@@ -14,7 +14,7 @@ const outputForDay = (dayString: string) => {
     const p1 = require("./" + dayString)["solvePartOne"];
     const p2 = require("./" + dayString)["solvePartTwo"];
     timedOutput(dayString, "one", p1, input);
-    timedOutput(dayString, "twp", p2, input);
+    timedOutput(dayString, "two", p2, input);
 };
 
 const name = process.argv[2];
