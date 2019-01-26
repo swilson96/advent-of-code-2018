@@ -166,6 +166,7 @@ export class Cave {
         const pebbleSortLowest = (Q: { q: Situation, d: number}[]) => {
             let pebble = Q[0];
             for (let i = 1; i < Q.length; ++i) {
+                // Broken if any node other than the first has distance 0
                 if (Q[i].d && (!pebble.d || pebble.d > Q[i].d)) {
                     pebble = Q[i];
                 }
@@ -253,6 +254,6 @@ export function solvePartOne(input: CaveDef) {
 }
 
 export function solvePartTwo(input: CaveDef) {
-    const cave = new Cave(input, 0);
+    const cave = new Cave(input, 50);
     return cave.djikstraToTarget();
 }
