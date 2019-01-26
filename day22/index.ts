@@ -140,11 +140,8 @@ export class Cave {
         const ClimbingGear = 2;
         const Neither = 0;
 
-        const hash = (x: number, y: number, e: number) => (x << 12) + (y << 2) + e;
-
-        const Q: Situation[] = []; // Consider e.g. "<0,0> with climbing gear" as a situation
-        const dist: { [key: number]: number } = {};
-        const refs: Situation[][][] = [];
+        const Q: { q: Situation, d: number}[] = []; // Consider e.g. "<0,0> with climbing gear" as a situation
+        const refs: { q: Situation, d: number }[][][] = [];
         for (let x = 0; x <= this._max.x; ++x) {
             refs[x] = [];
             for (let y = 0; y <= this._max.y; ++y) {
@@ -152,22 +149,35 @@ export class Cave {
                 for (let e = 0; e < 3; ++e) {
                     // Don't bother listing situations that we can't get to
                     if (e != this.riskAt(x, y)) {
-                        const here = new Situation(x, y, e);
-                        Q.push(here);
-                        refs[x][y][e] = here;
+                        const q = new Situation(x, y, e);
+                        const qPair = { q, d: undefined as number };
+                        Q.push(qPair);
+                        refs[x][y][e] = qPair;
                     }
                 }
             }
         }
 
         // You start at 0,0 (the mouth of the cave) with the torch equipped
-        dist[hash(0,0,Torch)] = 0;
+        refs[0][0][Torch].d = 0;
 
         const totalNodes = Q.length;
 
+        const pebbleSortLowest = (Q: { q: Situation, d: number}[]) => {
+            let pebble = Q[0];
+            for (let i = 1; i < Q.length; ++i) {
+                if (Q[i].d && (!pebble.d || pebble.d > Q[i].d)) {
+                    pebble = Q[i];
+                }
+            }
+            return pebble;
+        }
+
         while (Q.length > 0) {
-            const u = _.sortBy(Q, q => dist[hash(q.x, q.y, q.e)])[0];
-            const distanceToU = dist[hash(u.x, u.y, u.e)];
+            const uPair = pebbleSortLowest(Q);
+            const u = uPair.q;
+
+            const distanceToU = uPair.d;
             const type = this.riskAt(u.x, u.y);
             const e = u.e;
 
@@ -186,7 +196,7 @@ export class Cave {
                 break;
             }
 
-            _.remove(Q, u);
+            _.remove(Q, uPair);
 
             const neighbours = [];
 
@@ -208,16 +218,16 @@ export class Cave {
             if (u.y < this._max.y) checkAndPushMove(u.x, u.y + 1);
 
             neighbours.forEach(v => {
-                const currentDistance = dist[hash(v.n.x, v.n.y, v.n.e)];
+                const currentDistance = v.n.d;
                 const alt = v.d + distanceToU;
                 // console.log(`Checking neighbour ${v.n.toString()}, prev best ${currentDistance}, new best ${alt}`);
                 if (!currentDistance || currentDistance > alt) {
-                    dist[hash(v.n.x, v.n.y, v.n.e)] = alt;
+                    v.n.d = alt;
                 }
             });
         }
 
-        return dist[hash(this._target.x, this._target.y, Torch)];
+        return refs[this._target.x][this._target.y][Torch].d;
     }
 }
 
