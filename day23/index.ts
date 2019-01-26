@@ -11,6 +11,11 @@ class Point {
         this._z = z;
     }
 
+    public static fromString(hash: string) {
+        const bits = hash.split(",");
+        return new Point(Number(bits[0]), Number(bits[1]), Number(bits[2]));
+    }
+
     public get x() {
         return this._x;
     }
@@ -77,6 +82,21 @@ class Bot {
             new Point(this._p.x, this._p.y, this._p.z - this._r),
         ]
     }
+
+    public get perimiter() {
+        const ret = [];
+        for (let x = this._p.x - this._r; x <= this._p.x + this._r; ++x) {
+            const rangeLeft = this._r - Math.abs(x - this._p.x);
+            for (let y = this._p.y - rangeLeft; y <= this._p.y + rangeLeft; ++y) {
+                const zDiff = this._r - rangeLeft - Math.abs(y - this._p.y);
+                ret.push(new Point(x, y, this._p.z - zDiff));
+                if (zDiff) {
+                    ret.push(new Point(x, y, this._p.z + zDiff));
+                }
+            }
+        }
+        return ret;
+    }
 }
 
 export function solvePartOne(input: string) {
@@ -88,19 +108,13 @@ export function solvePartOne(input: string) {
 export function solvePartTwo(input: string) {
     const bots = input.split(/\r?\n/).map(l => new Bot(l));
 
-    const pointsToCheck = _.flatMap(bots, b => b.extremes);
+    //const pointsToCheck = _.flatMap(bots, b => b.extremes);
+    const pointsToCheck = _.uniq(_.flatMap(bots, b => b.perimiter.map(b => b.toString()))).map(Point.fromString);
+
+    console.log(`points to check: ${pointsToCheck.length}`);
 
     let maxScore = 0;
     let maxScorePositions: Point[] = [];
-
-    const xs = bots.map(b => b.position.x);
-    const xRange = [_.min(xs), _.max(xs)];
-    const ys = bots.map(b => b.position.y);
-    const yRange = [_.min(ys), _.max(ys)];
-    const zs = bots.map(b => b.position.z);
-    const zRange = [_.min(zs), _.max(zs)];
-
-    console.log(`bot range: ${xRange[1] - xRange[0]}, ${yRange[1] - yRange[0]}, ${zRange[1] - zRange[0]}`);
 
     const score = (position: Point) => bots.filter(b => b.isInRange(position)).length;
 
