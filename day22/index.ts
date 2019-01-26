@@ -187,25 +187,8 @@ export class Cave {
 
             const neighbours = [];
 
+            // Equipment change
             neighbours.push({ n: refs[u.x][u.y][3 - type - e], d: 7});
-
-            // switch (type) {
-            //     // torch: 1, cg 2
-            //     // add 3 - type - e
-            //     // replaced with the above
-            //     case 0: // rock
-            //         if (e === Torch) neighbours.push({ n: refs[u.x][u.y][ClimbingGear], d: 7});
-            //         if (e === ClimbingGear) neighbours.push({ n: refs[u.x][u.y][Torch], d: 7});
-            //         break;
-            //     case 1: // wet
-            //         if (e === Neither) neighbours.push({ n: refs[u.x][u.y][ClimbingGear], d: 7});
-            //         if (e === ClimbingGear) neighbours.push({ n: refs[u.x][u.y][Neither], d: 7});
-            //         break;
-            //     case 2: // narrow
-            //         if (e === Neither) neighbours.push({ n: refs[u.x][u.y][Torch], d: 7});
-            //         if (e === Torch) neighbours.push({ n: refs[u.x][u.y][Neither], d: 7});
-            //         break;
-            // }
 
             const checkAndPushMove = (newX: number, newY: number) => {
                 const nextType = this.riskAt(newX, newY);
