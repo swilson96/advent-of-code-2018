@@ -197,9 +197,17 @@ export function solvePartTwo(input: string) {
             _.min([overlapInFourSpace[4], overlapInFourSpace[5]].map(x => Math.abs(x))),
             _.min([overlapInFourSpace[6], overlapInFourSpace[7]].map(x => Math.abs(x))),
         ];
+
+        // Just take the minimum of this four-dimensional region,
+        // even though we are actually only interested in the 3D subset 2w = x + y + x
+        // It's probably a fluke that this works at all.
         const minDistanceFromOrigin = _.max(coordsOfCornerClosestToOrigin);
 
-        console.log(`minDistanceFromOrigin: ${minDistanceFromOrigin}`);
+        console.log(`minDistanceFromOrigin is ${new FourPoint(
+            coordsOfCornerClosestToOrigin[0],
+            coordsOfCornerClosestToOrigin[1],
+            coordsOfCornerClosestToOrigin[2],
+            coordsOfCornerClosestToOrigin[3]).toString()}: ${minDistanceFromOrigin}`);
 
         // Check by mapping back. This actually doesn't map back to a sensible point though.
         const x = (coordsOfCornerClosestToOrigin[3] + coordsOfCornerClosestToOrigin[1]) / 2;
