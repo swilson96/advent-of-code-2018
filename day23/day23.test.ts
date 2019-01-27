@@ -30,4 +30,11 @@ pos=<50,50,50>, r=200
 pos=<10,10,10>, r=5`);
     expect(answer).toBe(36);
   });
+
+  it("should solve simple example of part two", () => {
+    const answer = solvePartTwo(`pos=<0,10,10>, r=12
+pos=<0,-10,10>, r=12
+pos=<0,10,-10>, r=2`);
+    expect(answer).toBe(8);
+  });
 });
