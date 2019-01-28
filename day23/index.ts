@@ -181,7 +181,7 @@ export function solvePartTwo(input: string) {
         const overlapInFourSpace = [
             // The top of the intersection is the lowest of the tops of the intersecting 4-balls
             _.min(mappedBots.map(b => b.position.w + b.range)),
-            // The bottom of the intersection is the highest of the tops of the intersecting 4-balls
+            // The bottom of the intersection is the highest of the bottoms of the intersecting 4-balls
             _.max(mappedBots.map(b => b.position.w - b.range)),
             // etc etc
             _.min(mappedBots.map(b => b.position.x + b.range)),
@@ -191,29 +191,26 @@ export function solvePartTwo(input: string) {
             _.min(mappedBots.map(b => b.position.z + b.range)),
             _.max(mappedBots.map(b => b.position.z - b.range)),
         ];
-        const coordsOfCornerClosestToOrigin = [
-            _.min([overlapInFourSpace[0], overlapInFourSpace[1]].map(x => Math.abs(x))),
-            _.min([overlapInFourSpace[2], overlapInFourSpace[3]].map(x => Math.abs(x))),
-            _.min([overlapInFourSpace[4], overlapInFourSpace[5]].map(x => Math.abs(x))),
-            _.min([overlapInFourSpace[6], overlapInFourSpace[7]].map(x => Math.abs(x))),
-        ];
 
-        // Just take the minimum of this four-dimensional region,
-        // even though we are actually only interested in the 3D subset 2w = x + y + x
+        // Just take the minimum point in this four-dimensional region,
+        // even though we are actually only interested in the 3D subset w = x + y + x
         // It's probably a fluke that this works at all.
-        const minDistanceFromOrigin = _.max(coordsOfCornerClosestToOrigin);
+        const w = Math.abs(overlapInFourSpace[0]) < Math.abs(overlapInFourSpace[1]) ? overlapInFourSpace[0] : overlapInFourSpace[1];
+        const x = Math.abs(overlapInFourSpace[2]) < Math.abs(overlapInFourSpace[3]) ? overlapInFourSpace[2] : overlapInFourSpace[3];
+        const y = Math.abs(overlapInFourSpace[4]) < Math.abs(overlapInFourSpace[5]) ? overlapInFourSpace[4] : overlapInFourSpace[5];
+        const z = Math.abs(overlapInFourSpace[6]) < Math.abs(overlapInFourSpace[7]) ? overlapInFourSpace[6] : overlapInFourSpace[7];
+        const closestPoint = new FourPoint(w, x, y, z);
+        const minDistanceFromOrigin = closestPoint.distanceFrom(new FourPoint(0, 0, 0, 0));
 
-        console.log(`minDistanceFromOrigin is ${new FourPoint(
-            coordsOfCornerClosestToOrigin[0],
-            coordsOfCornerClosestToOrigin[1],
-            coordsOfCornerClosestToOrigin[2],
-            coordsOfCornerClosestToOrigin[3]).toString()}: ${minDistanceFromOrigin}`);
+        console.log(`minDistanceFromOrigin is ${closestPoint.toString()}: ${minDistanceFromOrigin}`);
 
-        // Check by mapping back. This actually doesn't map back to a sensible point though.
-        const x = (coordsOfCornerClosestToOrigin[3] + coordsOfCornerClosestToOrigin[1]) / 2;
-        const y = (coordsOfCornerClosestToOrigin[1] + coordsOfCornerClosestToOrigin[2]) / 2;
-        const z = (coordsOfCornerClosestToOrigin[2] + coordsOfCornerClosestToOrigin[3]) / 2;
-        const original = new ThreePoint(x, y, z);
+        // Check by mapping back.
+        // This actually doesn't yield a point with the best score in the original space,
+        // but the distance seems to be correct (in cases tested so far).
+        const xOrig = (closestPoint.z + closestPoint.x) / 2;
+        const yOrig = (closestPoint.x + closestPoint.y) / 2;
+        const zOrig = (closestPoint.y + closestPoint.z) / 2;
+        const original = new ThreePoint(xOrig, yOrig, zOrig);
         const score = bots.filter(b => b.isInRange(original)).length;
         console.log(`original point: ${original.toString()}; score: ${score}`);
 
